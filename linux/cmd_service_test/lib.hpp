@@ -285,6 +285,20 @@ namespace c_mem
             free(ptr);
         }
     }
+
+
+    bool is_aligned(void *ptr, size_t alignment)
+    {
+        return ((uintptr_t)ptr % alignment) == 0;
+    }
+
+    void *aligned_malloc(size_t size, size_t alignment)
+    {
+        void *ptr = NULL;
+        int result = posix_memalign(&ptr, alignment, size);
+        assert(result == 0 && "Aligned memory allocation failed");
+        return ptr;
+    }
 };
 
 /* Utility/Helper functions */
