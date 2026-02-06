@@ -1,0 +1,4 @@
+# ninja log v6
+415	552	1769298863844544142	DBSERVICE01	76ac0b54c0356d18
+26	414	1769298863456541723	CMakeFiles/DBSERVICE01.dir/main.cpp.o	29a6af4582de0432
+1	25	1769298863432541574	/home/dpauley/Documents/Code/Scripts/dbservice01/build/CMakeFiles/cmake.verify_globs	83975b4536816a4f

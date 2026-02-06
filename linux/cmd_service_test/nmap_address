@@ -1,0 +1,25 @@
+dpauley@pidev01:~ $ sudo nmap -sn 192.168.1.0/24
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-04 21:37 CST
+Nmap scan report for CasaNonna888 (192.168.1.1)
+Host is up (0.0065s latency).
+MAC Address: C4:41:1E:C9:65:DA (Belkin International)
+Nmap scan report for Ring-187f88CC71C4 (192.168.1.104)
+Host is up (0.17s latency).
+MAC Address: 18:7F:88:CC:71:C4 (Ring)
+Nmap scan report for onn-RokuTV-AAY (192.168.1.105)
+Host is up (0.16s latency).
+MAC Address: D4:AB:CD:57:73:F5 (Hui Zhou Gaoshengda Technology)
+Nmap scan report for 192.168.1.125
+Host is up (0.066s latency).
+MAC Address: 28:40:DD:F8:C3:15 (Unknown)
+Nmap scan report for 192.168.1.132
+Host is up (0.060s latency).
+MAC Address: 4C:24:CE:22:84:1C (Sichuan AI-Link Technology)
+Nmap scan report for 192.168.1.140
+Host is up (0.060s latency).
+MAC Address: D4:F7:D5:91:9E:2A (Sony Interactive Entertainment)
+Nmap scan report for 32onnRokuTV (192.168.1.147)
+Host is up (0.060s latency).
+MAC Address: 84:C8:A0:8A:26:29 (Hui Zhou Gaoshengda Technology)
+Nmap scan report for pidev01 (192.168.1.128)
+Host is up.

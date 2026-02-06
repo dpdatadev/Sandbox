@@ -1,0 +1,1 @@
+sudo nmap -sn 192.168.1.0/24 | awk '/Nmap scan report/{printf $5" ";getline;getline;print $3;}' > maclist.txt

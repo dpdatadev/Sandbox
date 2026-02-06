@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/dpauley/Documents/Code/Scripts/dbservice01/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/include -g -o CMakeFiles/DBSERVICE01.dir/main.cpp.o -c /home/dpauley/Documents/Code/Scripts/dbservice01/main.cpp",
+  "file": "/home/dpauley/Documents/Code/Scripts/dbservice01/main.cpp",
+  "output": "CMakeFiles/DBSERVICE01.dir/main.cpp.o"
+}
+]

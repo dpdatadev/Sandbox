@@ -1,0 +1,3 @@
+/home/dpauley/Documents/Code/Scripts/dbservice01/build/CMakeFiles/DBSERVICE01.dir
+/home/dpauley/Documents/Code/Scripts/dbservice01/build/CMakeFiles/edit_cache.dir
+/home/dpauley/Documents/Code/Scripts/dbservice01/build/CMakeFiles/rebuild_cache.dir

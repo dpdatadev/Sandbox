@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/DBSERVICE01.dir/link.d CMakeFiles/DBSERVICE01.dir/main.cpp.o -o DBSERVICE01  /usr/lib/aarch64-linux-gnu/libsqlite3.so
