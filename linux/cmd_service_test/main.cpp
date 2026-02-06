@@ -1,10 +1,19 @@
-#include "engine.hpp"
+#include "lib.hpp"
 
 // TODO, command builder
 // TODO, command server
 // TODO, file/data logger
 
 // 2/5
+// messing around with httplib, very easy endpoints
+// idea on communicating with my Pico via UDP - sending commands to perform various tasks
+// no use for real project (right now)
+
+// TODO - prototype in python https://chatgpt.com/c/697bf30b-02c4-8328-99ae-c144bd271709
+
+// TODO - build database to store commands
+
+// TODO - cmd function was used to generate UUID for various processes
 
 // ideas:
 //  TODO, service that runs commands and returns the output
@@ -37,9 +46,9 @@ int main(void)
                 const char uptimestring[] = "uptime";
                 
 
-                Services::cmd(sysinfostring, sysinfo);
-                Services::cmd(nuuidstring, nuuid);
-                Services::cmd(uptimestring, uptime);
+                Commands::exec(sysinfostring, sysinfo);
+                Commands::exec(nuuidstring, nuuid);
+                Commands::exec(uptimestring, uptime);
 
                 strcat(nuuid, sysinfo);
                 const char* outputReport = strcat(nuuid, uptime);
@@ -58,7 +67,7 @@ int main(void)
                 char ipList[IP_LIST_SIZE];
                 const char refreshIPList[] = "source ~/Documents/Code/Scripts/linux/getips.sh";
 
-                Services::cmd(refreshIPList, ipList);
+                Commands::exec(refreshIPList, ipList);
 
                 res.set_header("Access-Control-Allow-Origin", "*");         
                 res.set_content(ipList, "text/plain"); });

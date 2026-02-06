@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <uuid/uuid.h>
+#include "include/httplib.h"
+
 #include <vector>
 #include <array>
 #include <list>
@@ -13,12 +16,14 @@
 #include <iostream>
 #include <bit>
 
-#include "include/httplib.h"
-
 using namespace std;
 using namespace httplib;
 
 // Helpers and Macros
+#define LEFT(a, b) Services::extract_left_chars(a, b)
+#define NEWUUID Services::nuuid()
+#define UUIDSIZE 7
+
 #define HIGH 0x1
 #define LOW 0x0
 
@@ -26,6 +31,7 @@ using namespace httplib;
 #define OUTPUT 0x1
 #define INPUT_PULLUP 0x2
 
+// see ChatGPT notes
 namespace Math
 {
 #define PI 3.1415926535897932384626433832795
@@ -35,29 +41,31 @@ namespace Math
 #define RAD_TO_DEG 57.295779513082320876798154814105
 #define EULER 2.718281828459045235360287471352
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define abs(x) ((x) > 0 ? (x) : -(x))
-#define constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
-#define round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
-#define radians(deg) ((deg) * DEG_TO_RAD)
-#define degrees(rad) ((rad) * RAD_TO_DEG)
-#define sq(x) ((x) * (x))
+//m prefix to avoid clash with std
+#define m_min(a, b) ((a) < (b) ? (a) : (b))
+#define m_max(a, b) ((a) > (b) ? (a) : (b))
+#define m_abs(x) ((x) > 0 ? (x) : -(x))
+#define m_constrain(amt, low, high) ((amt) < (low) ? (low) : ((amt) > (high) ? (high) : (amt)))
+#define m_round(x) ((x) >= 0 ? (long)((x) + 0.5) : (long)((x) - 0.5))
+#define m_radians(deg) ((deg) * DEG_TO_RAD)
+#define m_degrees(rad) ((rad) * RAD_TO_DEG)
+#define m_sq(x) ((x) * (x))
 };
 
+//Helpers for files and bytes
 namespace Bits
 {
 #define lowByte(w) ((uint8_t)((w) & 0xff))
 #define highByte(w) ((uint8_t)((w) >> 8))
-
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
 #define bitToggle(value, bit) ((value) ^= (1UL << (bit)))
 #define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
+#define multipleBitsSet(i) (((i) & ((i) - 1)) != 0)
 };
 
-inline bool is_hex(char c, int &v)
+static inline bool is_hex(char c, int &v)
 {
     if (0x20 <= c && isdigit(c))
     {
@@ -77,7 +85,7 @@ inline bool is_hex(char c, int &v)
     return false;
 }
 
-inline bool from_hex_to_i(const std::string &s, size_t i, size_t cnt,
+static inline bool from_hex_to_i(const std::string &s, size_t i, size_t cnt,
                           int &val)
 {
     if (i >= s.size())
@@ -105,7 +113,7 @@ inline bool from_hex_to_i(const std::string &s, size_t i, size_t cnt,
     return true;
 }
 
-inline std::string from_i_to_hex(size_t n)
+static inline std::string from_i_to_hex(size_t n)
 {
     const char *charset = "0123456789abcdef";
     std::string ret;
@@ -117,7 +125,7 @@ inline std::string from_i_to_hex(size_t n)
     return ret;
 }
 
-inline size_t to_utf8(int code, char *buff)
+static inline size_t to_utf8(int code, char *buff)
 {
     if (code < 0x0080)
     {
@@ -163,7 +171,7 @@ inline size_t to_utf8(int code, char *buff)
 
 // NOTE: This code came up with the following stackoverflow post:
 // https://stackoverflow.com/questions/180947/base64-decode-snippet-in-c
-inline std::string base64_encode(const std::string &in)
+static inline std::string base64_encode(const std::string &in)
 {
     static const auto lookup =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -198,19 +206,19 @@ inline std::string base64_encode(const std::string &in)
     return out;
 }
 
-inline bool is_file(const std::string &path)
+static inline bool is_file(const std::string &path)
 {
     struct stat st;
     return stat(path.c_str(), &st) >= 0 && S_ISREG(st.st_mode);
 }
 
-inline bool is_dir(const std::string &path)
+static inline bool is_dir(const std::string &path)
 {
     struct stat st;
     return stat(path.c_str(), &st) >= 0 && S_ISDIR(st.st_mode);
 }
 
-inline bool is_valid_path(const std::string &path)
+static inline bool is_valid_path(const std::string &path)
 {
     size_t level = 0;
     size_t i = 0;
@@ -260,6 +268,7 @@ inline bool is_valid_path(const std::string &path)
     return true;
 }
 
+// Manual memory management
 namespace c_mem
 {
     static void *safe_malloc(size_t size)
@@ -278,3 +287,61 @@ namespace c_mem
     }
 };
 
+/* Utility/Helper functions */
+namespace Services
+{
+   // Based on ANSI SQL "LEFT() function"
+   static inline std::string extract_left_chars(const std::string& original_str, size_t n) {
+        // Ensure n does not exceed the actual string length to avoid exceptions
+        size_t length_to_extract = std::min(n, original_str.length()); 
+        // The second parameter to substr is the number of characters to include
+        return original_str.substr(0, length_to_extract); 
+    }
+
+    static std::string nuuid()
+    {
+        uuid_t binuuid;                                  // 16-byte binary UUID
+        char *uuid_str = (char *)c_mem::safe_malloc(37); // 36 characters + null terminator
+
+        // Generate a random UUID
+        uuid_generate_random(binuuid);
+
+        // Convert the binary UUID to a string representation
+        uuid_unparse_lower(binuuid, uuid_str);
+
+        printf("Generated UUID: %s\n", uuid_str);
+
+        std::string uuidstring = std::string(uuid_str);
+
+        // Free allocated memory
+        free(uuid_str);
+
+        return uuidstring;
+    }
+
+
+    static int exec(const char *cmd, char *result) // run a linux command and return the initial result
+    {
+        FILE *fp;
+        char buf[64];
+        int res;
+
+        result[0] = 0;
+        fp = popen(cmd, "r"); // todo - research this some more
+        if (fp == NULL)
+            return 0;
+        if (fgets(buf, sizeof(buf) - 1, fp) == NULL)
+        {
+            pclose(fp);
+            return 0;
+        }
+        else
+        {
+            pclose(fp);
+            res = sscanf(buf, "%s", result);
+            if (res != 1)
+                return 0;
+            return 1;
+        }
+    }
+};

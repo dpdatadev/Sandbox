@@ -1,11 +1,15 @@
-#include <iostream>
+#include "lib.hpp"
 
 using namespace std;
 
-int main() {
+using namespace Services;
 
-    
-    cout << "Testing..." << endl;
-    static_assert((sizeof(int) < 5), "int is 4");
+int main(int argc, char* argv[])
+{
+
+    cout << "Testing Code.." << endl;
+    size_t uuid_size(7);
+    cout << LEFT(NEWUUID, uuid_size) << endl;    
+
     return 0;
 }
