@@ -309,6 +309,7 @@ namespace Services
 #ifndef _t_factory_h_
 #define _t_factory_h_
 
+    // https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
     template <class T>
     class base_creator
     {
@@ -367,7 +368,7 @@ namespace Services
 
     static std::string nuuid()
     {
-        uuid_t binuuid; //c type                          // 16-byte binary UUID
+        uuid_t binuuid;                                  // c type                          // 16-byte binary UUID
         char *uuid_str = (char *)c_mem::safe_malloc(37); // 36 characters + null terminator
 
         // Generate a random UUID

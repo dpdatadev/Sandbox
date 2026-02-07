@@ -4,10 +4,10 @@
 
 namespace Commands
 {
-    //TODO, implement a Command Scrubber that can sanitize and prevent unwanted input from being executed
-    //or only registered Commands can be executed - hijacked control can never happen (in theory?)
-    //DATA Access Layer (Sqlite)
-    //TODO
+    // TODO, implement a Command Scrubber that can sanitize and prevent unwanted input from being executed
+    // or only registered Commands can be executed - hijacked control can never happen (in theory?)
+    // DATA Access Layer (Sqlite)
+    // TODO
 
     enum CommandCategory
     {
@@ -40,7 +40,8 @@ namespace Commands
         }
         virtual ~Command() = default;
         // How certain commands are processed are determined in derived class, which are instantiated by the CommandFactory
-        virtual unique_ptr<CommandOutput> process() const = 0; 
+        virtual unique_ptr<CommandOutput> process() const = 0;
+
     private:
         string _uuid;
         string _commandText;
@@ -55,8 +56,8 @@ namespace Commands
         TextCommand(string uuid, string commandText) : Command(uuid, commandText) {}
         unique_ptr<CommandOutput> process() const override
         {
-            //TODO
-            //call uuid service:
+            // TODO
+            // call uuid service:
             size_t uuid_size(7);
             string new_uuid = LEFT(NEWUUID, uuid_size);
             // CommandCategory::TEXT;
