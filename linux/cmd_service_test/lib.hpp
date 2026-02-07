@@ -328,6 +328,8 @@ namespace Services
         }
     };
 
+    // TODO, implement RAII changes - https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
+
     template <class _key, class base_type>
     class factory
     {
@@ -337,7 +339,7 @@ namespace Services
             _function_map[id] = _fn;
         }
 
-        base_type *create(_key id)
+        std::unique_ptr<base_type> create(_key id)
         {
             return _function_map[id]->create();
         }
