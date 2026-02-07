@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sqlite3.h>
 #include <uuid/uuid.h>
 #include "include/httplib.h"
 
@@ -14,6 +15,8 @@
 #include <map>
 #include <cstring>
 #include <iostream>
+#include <fstream>
+#include <algorithm>
 #include <bit>
 
 using namespace std;
@@ -41,7 +44,7 @@ namespace Math
 #define RAD_TO_DEG 57.295779513082320876798154814105
 #define EULER 2.718281828459045235360287471352
 
-//m prefix to avoid clash with std
+// m prefix to avoid clash with std
 #define m_min(a, b) ((a) < (b) ? (a) : (b))
 #define m_max(a, b) ((a) > (b) ? (a) : (b))
 #define m_abs(x) ((x) > 0 ? (x) : -(x))
@@ -52,7 +55,7 @@ namespace Math
 #define m_sq(x) ((x) * (x))
 };
 
-//Helpers for files and bytes
+// Helpers for files and bytes
 namespace Bits
 {
 #define lowByte(w) ((uint8_t)((w) & 0xff))
@@ -86,7 +89,7 @@ static inline bool is_hex(char c, int &v)
 }
 
 static inline bool from_hex_to_i(const std::string &s, size_t i, size_t cnt,
-                          int &val)
+                                 int &val)
 {
     if (i >= s.size())
     {
@@ -286,7 +289,6 @@ namespace c_mem
         }
     }
 
-
     bool is_aligned(void *ptr, size_t alignment)
     {
         return ((uintptr_t)ptr % alignment) == 0;
@@ -304,17 +306,68 @@ namespace c_mem
 /* Utility/Helper functions */
 namespace Services
 {
-   // Based on ANSI SQL "LEFT() function"
-   static inline std::string extract_left_chars(const std::string& original_str, size_t n) {
+#ifndef _t_factory_h_
+#define _t_factory_h_
+
+    template <class T>
+    class base_creator
+    {
+    public:
+        virtual ~base_creator() {};
+        virtual std::unique_ptr<T> create() = 0;
+    };
+
+    template <class derived_type, class base_type>
+    class derived_creator : public base_creator<base_type>
+    {
+    public:
+        base_type *create()
+        {
+            return std::make_unique<derived_type>();
+        }
+    };
+
+    template <class _key, class base_type>
+    class factory
+    {
+    public:
+        void register_type(_key id, base_creator<base_type> *_fn)
+        {
+            _function_map[id] = _fn;
+        }
+
+        base_type *create(_key id)
+        {
+            return _function_map[id]->create();
+        }
+
+        ~factory()
+        {
+            auto it = _function_map.begin();
+            for (it; it != _function_map.end(); ++it)
+            {
+                delete (*it).second;
+            }
+        }
+
+    private:
+        std::map<_key, base_creator<base_type> *> _function_map;
+    };
+
+#endif /* defined _t_factory_h_ */
+
+    // Based on ANSI SQL "LEFT() function"
+    static inline std::string extract_left_chars(const std::string &original_str, size_t n)
+    {
         // Ensure n does not exceed the actual string length to avoid exceptions
-        size_t length_to_extract = std::min(n, original_str.length()); 
+        size_t length_to_extract = std::min(n, original_str.length());
         // The second parameter to substr is the number of characters to include
-        return original_str.substr(0, length_to_extract); 
+        return original_str.substr(0, length_to_extract);
     }
 
     static std::string nuuid()
     {
-        uuid_t binuuid;                                  // 16-byte binary UUID
+        uuid_t binuuid; //c type                          // 16-byte binary UUID
         char *uuid_str = (char *)c_mem::safe_malloc(37); // 36 characters + null terminator
 
         // Generate a random UUID
@@ -325,14 +378,13 @@ namespace Services
 
         printf("Generated UUID: %s\n", uuid_str);
 
-        std::string uuidstring = std::string(uuid_str);
+        std::string stdUuidString(uuid_str);
 
-        // Free allocated memory
+        // Free allocated memory for c string
         free(uuid_str);
 
-        return uuidstring;
+        return stdUuidString;
     }
-
 
     static int exec(const char *cmd, char *result) // run a linux command and return the initial result
     {
