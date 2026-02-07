@@ -12,6 +12,8 @@
 #include <array>
 #include <list>
 #include <memory>
+#include <shared_mutex>
+#include <optional>
 #include <map>
 #include <cstring>
 #include <iostream>
@@ -308,7 +310,8 @@ namespace Services
 {
 #ifndef _t_factory_h_
 #define _t_factory_h_
-
+    // Add method to get singleton factory instance in implementation
+    // https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
     // https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
     template <class T>
     class base_creator
@@ -322,7 +325,7 @@ namespace Services
     class derived_creator : public base_creator<base_type>
     {
     public:
-        base_type *create()
+        std::unique_ptr<base_type> create()
         {
             return std::make_unique<derived_type>();
         }
@@ -331,30 +334,40 @@ namespace Services
     // TODO, implement RAII changes - https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
 
     template <class _key, class base_type>
-    class factory
+    class thread_safe_factory
     {
     public:
-        void register_type(_key id, base_creator<base_type> *_fn)
+        void register_type(_key &id, std::unique_ptr<base_creator<base_type>> _creator)
         {
-            _function_map[id] = _fn;
+            std::unique_lock lock(_mutex);
+            _function_map[id] = std::move(_creator);
         }
 
-        std::unique_ptr<base_type> create(_key id)
+        // Create an instance (READ LOCK)
+        std::unique_ptr<base_type> create(const _key &id)
         {
-            return _function_map[id]->create();
+            std::shared_lock lock(_mutex);
+
+            auto it = _function_map.find(id);
+
+            if (it == _function_map.end())
+                return nullptr;
+
+            return it->second->create();
         }
 
-        ~factory()
+        // Optional: query existence
+        bool contains(const _key &id) const
         {
-            auto it = _function_map.begin();
-            for (it; it != _function_map.end(); ++it)
-            {
-                delete (*it).second;
-            }
+            std::shared_lock lock(_mutex);
+            return _function_map.contains(id);
         }
+
+        ~thread_safe_factory() = default;
 
     private:
-        std::map<_key, base_creator<base_type> *> _function_map;
+        std::unordered_map<_key, std::unique_ptr<base_creator<base_type>>> _function_map;
+        mutable std::shared_mutex _mutex;
     };
 
 #endif /* defined _t_factory_h_ */
