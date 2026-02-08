@@ -1,1 +1,0 @@
-sudo ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" > hostips.txt

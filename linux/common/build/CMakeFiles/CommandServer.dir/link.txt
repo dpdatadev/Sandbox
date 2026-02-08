@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/CommandServer.dir/link.d CMakeFiles/CommandServer.dir/main.cpp.o -o CommandServer

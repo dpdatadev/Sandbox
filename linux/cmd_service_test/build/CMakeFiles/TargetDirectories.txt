@@ -1,3 +1,0 @@
-/home/dpauley/Documents/Code/Scripts/linux/build/CMakeFiles/CommandServer.dir
-/home/dpauley/Documents/Code/Scripts/linux/build/CMakeFiles/edit_cache.dir
-/home/dpauley/Documents/Code/Scripts/linux/build/CMakeFiles/rebuild_cache.dir
