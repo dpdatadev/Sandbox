@@ -1,4 +1,5 @@
-#include "commands.hpp"
+//#include "commands.hpp"
+#include "lib.hpp"
 
 using namespace Services;
 
@@ -13,14 +14,24 @@ int main(int argc, char* argv[])
 {
 
     cout << "Testing Code.." << endl;
+
     size_t uuid_size(7);
     cout << LEFT(NEWUUID, uuid_size) << endl;
 
-    //const char cString[15]{"Hello, World!\n"};
+    std::string _testString{"WouldYouLikeToGoOnADateWithMeNextSaturday\n\n"};
+    
+    cout << _testString << endl;
 
-    //system("clear");
-    //cout << __unit_test_01(cString) << endl;
+    size_t cutAllSize{0};
 
+    std::string cut_testString = extract_left_chars(_testString, cutAllSize);
+
+    cout << cut_testString << endl;
+
+    // const char cString[15]{"Hello, World!\n"};
+
+    // system("clear");
+    // cout << __unit_test_01(cString) << endl;
 
     return 0;
 }
