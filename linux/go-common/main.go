@@ -69,5 +69,7 @@ func main() {
 
 	newID, err := NewShortUUID()
 
+	fmt.Println(Test())
+
 	fmt.Println(newID)
 }
