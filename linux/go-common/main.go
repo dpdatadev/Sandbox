@@ -30,11 +30,7 @@ func Right(s string, size int) (string, error) {
 		return s, errors.New("EMPTY STRING")
 	}
 
-	appliedSize := (len(s) - size)
-
-	if appliedSize < 0 {
-		appliedSize = 0
-	}
+	appliedSize := max((len(s) - size), 0)
 
 	return s[appliedSize:], nil
 }
@@ -48,7 +44,7 @@ func NewShortUUID() (string, error) {
 }
 
 // ////////////////////////////////
-
+// Create actual unit tests .. TODO
 func main() {
 	fmt.Printf("%s", debug.Stack())
 	log.SetPrefix("::Testing::")
@@ -68,8 +64,23 @@ func main() {
 	}
 
 	newID, err := NewShortUUID()
-
-	fmt.Println(Test())
-
+	log.Println("::UUID SERVICE Start::")
 	fmt.Println(newID)
+
+	defer StartServer()
+	log.Println("::DB SERVICE START::")
+	CreateDB()
+
+	uuid, err := NewShortUUID()
+	if err != nil {
+		panic("UUID ERROR")
+	} else {
+		log.Println("::SEEDB SERVICE START::")
+		SeedDB(uuid, "TEST NOTES")
+	}
+
+	log.Println("::QUERY DB READ STATE START::")
+	QueryDBTest()
+
+	log.Println("::HTTP SERVICE START -- UP -- ::")
 }
