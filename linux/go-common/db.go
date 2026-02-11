@@ -15,6 +15,7 @@ func CreateDB() {
 	db, err := sql.Open("sqlite3", "./test1.db")
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 	defer db.Close()
 	sqlStmt := `
@@ -27,6 +28,7 @@ func CreateDB() {
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 	log.Println("Table 'dispatch_log' created successfully")
 
@@ -36,11 +38,13 @@ func SeedDB(uuid string, notes string) {
 	db, err := sql.Open("sqlite3", "./test1.db")
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 	defer db.Close()
 	_, err = db.Exec("INSERT INTO dispatch_log(uuid, notes) VALUES(?, ?)", uuid, notes)
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 	log.Println("New log inserted successfully")
 }
@@ -49,6 +53,7 @@ func QueryDBTest() {
 	db, err := sql.Open("sqlite3", "./test1.db")
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 	defer db.Close()
 	rows, err := db.Query("SELECT id, uuid, notes from dispatch_log")
@@ -71,5 +76,6 @@ func QueryDBTest() {
 	}
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 }
