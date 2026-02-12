@@ -5,6 +5,7 @@
 // Command Framework
 // Input → Scrubber → Factory → Command → Output
 // https://chatgpt.com/c/6986b331-7e80-8325-9ffb-8c51562e1709
+//Being replaced with Go (see go-common.commands.go)
 
 namespace Commands
 {

@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"os/exec"
+	"runtime"
 	"runtime/debug"
 
 	"github.com/google/uuid"
@@ -41,6 +44,23 @@ func NewShortUUID() (string, error) {
 	uuidString, err := Left(uuid.NewString(), 8)
 
 	return uuidString, err
+}
+
+func CommandTest() (string, error) {
+
+	if runtime.GOOS == "windows" {
+		log.Panicf("WINDOWS NOT SUPPORTED")
+		os.Exit(-1)
+	}
+
+	out, err := exec.Command("ip", "neighbor").Output()
+	if err != nil {
+		log.Panicf("%s", err)
+	}
+
+	log.Print("Test Command (CMD) Successfully Executed")
+	output := string(out[:])
+	return output, nil
 }
 
 // ////////////////////////////////
@@ -82,5 +102,7 @@ func main() {
 	log.Println("::QUERY DB READ STATE START::")
 	QueryDBTest()
 
+	commandTest, _ := CommandTest()
+	log.Println(commandTest)
 	log.Println("::HTTP SERVICE START -- UP -- ::")
 }
