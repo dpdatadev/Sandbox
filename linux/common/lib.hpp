@@ -90,6 +90,21 @@ static inline bool is_hex(char c, int &v)
     return false;
 }
 
+static inline void hexdump(const void *data, size_t len)
+{
+    const unsigned char *p = data;
+
+    for (size_t i = 0; i < len; ++i)
+    {
+        printf("%02X ", p[i]);
+
+        if ((i + 1) % 16 == 0)
+            printf("\n");
+    }
+
+    printf("\n");
+}
+
 static inline bool from_hex_to_i(const std::string &s, size_t i, size_t cnt,
                                  int &val)
 {
@@ -291,12 +306,12 @@ namespace c_mem
         }
     }
 
-    bool is_aligned(void *ptr, size_t alignment)
+    static bool is_aligned(void *ptr, size_t alignment)
     {
         return ((uintptr_t)ptr % alignment) == 0;
     }
 
-    void *aligned_malloc(size_t size, size_t alignment)
+    static void *aligned_malloc(size_t size, size_t alignment)
     {
         void *ptr = NULL;
         int result = posix_memalign(&ptr, alignment, size);
@@ -381,7 +396,7 @@ namespace Services
         return original_str.substr(0, length_to_extract);
     }
 
-    //Generate new UUID
+    // Generate new UUID
     static std::string nuuid()
     {
 

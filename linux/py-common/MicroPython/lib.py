@@ -686,8 +686,8 @@ class NetworkUtils:
                 pass
         return live_hosts
 
-    @staticmethod
-    def UDP_listen(server_address="0.0.0.0", port=9932):
+    @classmethod
+    def UDP_listen(cls, server_address="0.0.0.0", port=9932):
 
         import usocket
 
@@ -704,7 +704,10 @@ class NetworkUtils:
             message = data.decode()
             print("\nMESSAGE RECEIVED:\n")
             print(message)
-            # print(address)
+            if address is not None:
+                print(address)
+            #TODO
+            #cls.send_email("", "", "", "", "", "", "")
 
 
 ##################################################################

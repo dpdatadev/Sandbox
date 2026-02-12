@@ -11,6 +11,16 @@ import (
 /*
 
 COMMANDER (?) still picking the name
+https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
+
+February 2026 - R&D
+
+Containerized testing:
+https://pkg.go.dev/github.com/testcontainers/testcontainers-go
+https://medium.com/tiket-com/go-with-cucumber-an-introduction-for-bdd-style-integration-testing-7aca2f2879e4
+
+We can setup containers, configured to our liking, describe the scenarios exactly with Cucumber,
+then test each of our pipeline components. SSH, HTTP, SQLITE, YAML, etc., and not have a messy server circus.
 
 https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
 https://tutorialedge.net/golang/executing-system-commands-with-golang/
@@ -136,6 +146,22 @@ A programmable command orchestration + audit + pipeline system with multi-protoc
 
 If RunDeck and Ansible had a baby .. but it came out as an embeddable API for Dev teams.
 
+
+This framework becomes compelling when:
+
+Command execution is part of the product
+
+Not just an operational concern
+
+DevOps handles:
+
+Deploying systems
+
+Embedded orchestration handles:
+
+Operating systems programmatically from within software
+
+Different layers of the stack.
 */
 
 type CommandStatus string
