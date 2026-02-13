@@ -1,8 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"errors"
+	"maps"
+	"os/exec"
+	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -162,24 +168,37 @@ Embedded orchestration handles:
 Operating systems programmatically from within software
 
 Different layers of the stack.
+
+Implements the Chain of Responsibility design pattern:
+https://refactoring.guru/design-patterns/chain-of-responsibility/go/example
+
+There are no rogue commands - must be handled in the context of Execution manager,
+which validates, scrubs, executes, and handles directed output and logging.
+Each component hands off to the next.
+Command → Scrubber → Policy Engine → Logger → Executor → Post-Processor → Store
+
+
+Study this pattern*
 */
 
 type CommandStatus string
-type CommandCategory int
 
 const (
 	StatusPending CommandStatus = "PENDING"
 	StatusRunning CommandStatus = "RUNNING"
 	StatusSuccess CommandStatus = "SUCCESS"
 	StatusFailed  CommandStatus = "FAILED"
-
-	NIL   CommandCategory = -1
-	TEXT  CommandCategory = 0
-	WEB   CommandCategory = 1
-	DATA  CommandCategory = 2
-	OTHER CommandCategory = 3
 )
 
+const (
+	NIL = iota
+	TEXT
+	WEB
+	DATA
+	OTHER
+)
+
+// TODO, add a way for the user to add more Deny Commands
 var DefaultDenyCommands = []string{
 	"sudo",
 	"rm",
@@ -200,6 +219,7 @@ var DefaultDenyCommands = []string{
 	"iptables",
 }
 
+// TODO, add a way for the user to add more Deny Commands
 var DefaultDenyPatterns = []string{
 	"rm -rf /",
 	"rm -rf /*",
@@ -222,10 +242,11 @@ var DefaultProtectedPaths = []string{
 }
 
 type Command struct {
-	ID    uuid.UUID
-	Name  string
-	Args  []string
-	Notes string
+	ID       uuid.UUID
+	Name     string
+	Category int
+	Args     []string
+	Notes    string
 
 	Stdout   string
 	Stderr   string
@@ -278,15 +299,6 @@ func NewDefaultScrubber() *DefaultScrubber {
 	}
 }
 
-func contains(list []string, val string) bool {
-	for _, v := range list {
-		if v == val {
-			return true
-		}
-	}
-	return false
-}
-
 func (s *DefaultScrubber) Scrub(
 	cmd *Command,
 ) error {
@@ -295,13 +307,13 @@ func (s *DefaultScrubber) Scrub(
 
 	// ---- Allowlist Mode ----
 	if s.Policy.AllowMode {
-		if !contains(s.Policy.AllowCommands, name) {
+		if !slices.Contains(s.Policy.AllowCommands, name) {
 			return errors.New("command not in allowlist")
 		}
 	}
 
 	// ---- Deny Command ----
-	if contains(s.Policy.DenyCommands, name) {
+	if slices.Contains(s.Policy.DenyCommands, name) {
 		return errors.New("command denied by policy: " + name)
 	}
 
@@ -330,4 +342,183 @@ func (s *DefaultScrubber) Scrub(
 	}
 
 	return nil
+}
+
+type CommandStore interface {
+	Create(ctx context.Context, cmd *Command) error
+	GetByID(ctx context.Context, id uuid.UUID) (*Command, error)
+	Update(ctx context.Context, cmd *Command) error
+}
+
+type InMemoryCommandStore struct {
+	mu   sync.RWMutex
+	data map[uuid.UUID]*Command
+}
+
+func NewInMemoryStore() *InMemoryCommandStore {
+	return &InMemoryCommandStore{
+		data: make(map[uuid.UUID]*Command),
+	}
+}
+
+// Depending on how large the map gets, this will help recycle memory.
+// See here --> https://medium.com/@caring_smitten_gerbil_914/go-maps-and-hidden-memory-leaks-what-every-developer-should-know-17b322b177eb
+// This may not be neccessary since we are storing single value pointers as opposed to 128 byte buckets
+// Though, we know now that some of the command data will grow fairly large, UTF-8 text.
+func (s *InMemoryCommandStore) shrinkMap(old map[uuid.UUID]*Command) map[uuid.UUID]*Command {
+	newMap := make(map[uuid.UUID]*Command, len(old))
+	maps.Copy(newMap, old)
+	return newMap
+}
+
+func (s *InMemoryCommandStore) Create(
+	ctx context.Context,
+	cmd *Command,
+) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.data[cmd.ID] = cmd
+	return nil
+}
+
+func (s *InMemoryCommandStore) GetByID(
+	ctx context.Context,
+	id uuid.UUID,
+) (*Command, error) {
+
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	cmd, ok := s.data[id]
+	if !ok {
+		return nil, errors.New("command not found")
+	}
+
+	return cmd, nil
+}
+
+func (s *InMemoryCommandStore) Update(
+	ctx context.Context,
+	cmd *Command,
+) error {
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.data[cmd.ID] = cmd
+	return nil
+}
+
+// Stores the results/metadata of a Command Operation
+type ExecutionResult struct {
+	Stdout   string
+	Stderr   string
+	ExitCode int
+	Error    string
+
+	StartedAt time.Time
+	EndedAt   time.Time
+	Duration  time.Duration
+}
+
+// Define the Executor contract for the Service layer. All Commands pass through the Executor.
+type CommandExecutor interface {
+	Execute(
+		ctx context.Context,
+		cmd *Command,
+	) (*ExecutionResult, error)
+}
+
+// Local (not Remote) Command Executor (Default)
+type LocalExecutor struct{}
+
+func NewLocalExecutor() *LocalExecutor {
+	return &LocalExecutor{}
+}
+
+func (e *LocalExecutor) Execute(
+	ctx context.Context,
+	cmd *Command,
+) (*ExecutionResult, error) {
+
+	start := time.Now()
+
+	c := exec.CommandContext(ctx, cmd.Name, cmd.Args...)
+
+	var stdout, stderr bytes.Buffer
+	c.Stdout = &stdout
+	c.Stderr = &stderr
+
+	err := c.Run()
+
+	end := time.Now()
+
+	result := &ExecutionResult{
+		Stdout:    stdout.String(),
+		Stderr:    stderr.String(),
+		StartedAt: start,
+		EndedAt:   end,
+		Duration:  end.Sub(start),
+	}
+
+	if c.ProcessState != nil {
+		result.ExitCode = c.ProcessState.ExitCode()
+	}
+
+	if err != nil {
+		result.Error = err.Error()
+	}
+
+	return result, err
+}
+
+// A Command Service must have access to an Executor for managing Commands and a Store for persisting results.
+type CommandService struct {
+	Store    CommandStore
+	Executor CommandExecutor
+}
+
+func NewCommandService(
+	store CommandStore,
+	exec CommandExecutor,
+) *CommandService {
+	return &CommandService{
+		Store:    store,
+		Executor: exec,
+	}
+}
+
+func (s *CommandService) Run(
+	ctx context.Context,
+	cmd *Command,
+) error {
+
+	// Persist initial record
+	if err := s.Store.Create(ctx, cmd); err != nil {
+		return err
+	}
+
+	// Mark running
+	cmd.Status = StatusRunning
+	cmd.StartedAt = time.Now()
+	s.Store.Update(ctx, cmd)
+
+	// Execute
+	result, err := s.Executor.Execute(ctx, cmd)
+
+	// Apply results
+	cmd.Stdout = result.Stdout
+	cmd.Stderr = result.Stderr
+	cmd.ExitCode = result.ExitCode
+	cmd.Error = result.Error
+	cmd.EndedAt = result.EndedAt
+
+	if err != nil {
+		cmd.Status = StatusFailed
+	} else {
+		cmd.Status = StatusSuccess
+	}
+
+	return s.Store.Update(ctx, cmd)
 }

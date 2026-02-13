@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -8,12 +9,19 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 // DEV: 2/9
 // ////////////////////////////////
+
+func printAlloc() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
+}
 
 // ANSI SQL LEFT style substring
 func Left(s string, size int) (string, error) {
@@ -63,6 +71,34 @@ func CommandTest() (string, error) {
 	return output, nil
 }
 
+func CommandSystemTest() {
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second,
+	)
+	defer cancel()
+
+	store := NewInMemoryStore()
+	exec := NewLocalExecutor()
+
+	svc := NewCommandService(store, exec)
+
+	cmd := NewCommand(
+		"echo",
+		[]string{"Hello from Phase 1"},
+		"test command",
+	)
+
+	err := svc.Run(ctx, cmd)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Command ID:", cmd.ID)
+	fmt.Println("Status:", cmd.Status)
+	fmt.Println("Stdout:", cmd.Stdout)
+}
+
 // ////////////////////////////////
 // Create actual unit tests .. TODO
 func main() {
@@ -71,6 +107,11 @@ func main() {
 	log.SetFlags(0)
 	log.Print("main()::")
 	fmt.Println("Hello, World!!!")
+
+	_, hostname := os.Hostname()
+	pid := os.Getpid()
+	log.Println(hostname)
+	log.Println(pid)
 
 	testString := "Hello Mate"
 	leftString, err := Left(testString, 7)
@@ -88,6 +129,7 @@ func main() {
 	fmt.Println(newID)
 
 	defer StartServer()
+	//defer printAlloc() //see heap usage after we force GC towards the end
 	log.Println("::DB SERVICE START::")
 	CreateDB()
 
@@ -102,7 +144,10 @@ func main() {
 	log.Println("::QUERY DB READ STATE START::")
 	QueryDBTest()
 
-	commandTest, _ := CommandTest()
-	log.Println(commandTest)
+	//commandTest, _ := CommandTest()
+
+	CommandSystemTest()
 	log.Println("::HTTP SERVICE START -- UP -- ::")
+	//printAlloc()
+	//runtime.GC()
 }
