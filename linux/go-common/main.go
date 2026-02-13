@@ -89,7 +89,7 @@ func CommandTestRunner(
 			defer wg.Done()
 
 			if err := svc.Run(ctx, cmd); err != nil {
-				panic(err)
+				panic(err) //todo remove all panics from framework code
 			}
 
 			finished[i] = cmd
