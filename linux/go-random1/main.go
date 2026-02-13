@@ -28,7 +28,6 @@ type HTTPRunner struct {
 	URL            string
 }
 
-// todo
 func (r *Runner) Exec() bool {
 	fmt.Println("I fulfill the requirement")
 	fmt.Println(r.cmd)
