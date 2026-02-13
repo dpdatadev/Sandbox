@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -71,6 +72,34 @@ func CommandTest() (string, error) {
 	return output, nil
 }
 
+func CommandTestRunner(
+	svc *CommandService,
+	ctx context.Context,
+	cmds []*Command,
+) []*Command {
+
+	var wg sync.WaitGroup
+
+	finished := make([]*Command, len(cmds))
+
+	for i, cmd := range cmds {
+		wg.Add(1)
+
+		go func(i int, cmd *Command) {
+			defer wg.Done()
+
+			if err := svc.Run(ctx, cmd); err != nil {
+				panic(err)
+			}
+
+			finished[i] = cmd
+		}(i, cmd)
+	}
+
+	wg.Wait()
+	return finished
+}
+
 func CommandSystemTest() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -89,14 +118,19 @@ func CommandSystemTest() {
 		"test command",
 	)
 
-	err := svc.Run(ctx, cmd)
-	if err != nil {
-		panic(err)
-	}
+	cmd1 := NewCommand("ip", []string{"neighbor"}, "IP Test Command")
 
-	fmt.Println("Command ID:", cmd.ID)
-	fmt.Println("Status:", cmd.Status)
-	fmt.Println("Stdout:", cmd.Stdout)
+	commands := []*Command{cmd, cmd1}
+
+	commands = append(commands, NewCommand("arp", []string{"-a"}, "Arp Test Command"))
+
+	testCommands := CommandTestRunner(svc, ctx, commands)
+
+	for _, cmd := range testCommands {
+		fmt.Println("Command ID:", cmd.ID)
+		fmt.Println("Status:", cmd.Status)
+		fmt.Println("Stdout:", cmd.Stdout)
+	}
 }
 
 // ////////////////////////////////
