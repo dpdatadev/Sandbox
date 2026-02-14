@@ -355,6 +355,9 @@ type InMemoryCommandStore struct {
 	data map[uuid.UUID]*Command
 }
 
+//TODO - SQLITE memory store/file store
+//TODO - Postgres store
+
 func NewInMemoryStore() *InMemoryCommandStore {
 	return &InMemoryCommandStore{
 		data: make(map[uuid.UUID]*Command),
@@ -522,3 +525,15 @@ func (s *CommandService) Run(
 
 	return s.Store.Update(ctx, cmd)
 }
+
+// TODO - phase 2:
+// Get database setup (SQLITE store)
+// Piping multiple commands (still local)
+// Get out of dev zone and create actual package structure
+
+// TODO - phase 3:
+// Working with HTTP(S)
+// Working with SSH
+// Test Scrubers/Security
+// Metadata/Analysis/Examples
+// LAUNCH
