@@ -207,6 +207,7 @@ var (
 	PrintSuccess  = color.New(color.Bold, color.FgGreen, color.Underline).PrintfFunc()
 	PrintStdOut   = color.New(color.Bold, color.FgYellow).PrintfFunc()
 	PrintStdErr   = color.New(color.Bold, color.FgHiRed).PrintfFunc()
+	PrintFailure  = color.New(color.Bold, color.FgRed, color.Underline).PrintfFunc()
 )
 
 // TODO, add a way for the user to add more Deny Commands
@@ -604,11 +605,21 @@ func CommandSystemTest() {
 	testCommands := CommandTestRunner(svc, ctx, commands)
 
 	for _, cmd := range testCommands {
+
+		if NewDefaultScrubber().Scrub(cmd) != nil {
+			panic("SECURITY POLICY VIOLATED in COMMAND")
+		}
+
 		PrintIdentity("Command ID: %v\n", cmd.ID)
-		PrintSuccess("Status: %v\n", cmd.Status)
+
+		if cmd.Status == "SUCCESS" {
+			PrintSuccess("Status: %v\n", cmd.Status)
+		}
+
 		PrintStdOut("STDOUT: %s\n", cmd.Stdout)
 
 		if cmd.Stderr != "" {
+			PrintFailure("Status: %v\n", cmd.Status)
 			PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
 		}
 	}
