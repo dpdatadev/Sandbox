@@ -9,6 +9,7 @@ import (
 	"maps"
 	"os"
 	"os/exec"
+	"runtime"
 	"runtime/debug"
 	"slices"
 	"strings"
@@ -223,7 +224,46 @@ var (
 	PrintFailure  = color.New(color.Bold, color.FgRed, color.Underline).PrintfFunc()
 )
 
-func DebugDump(cmd *Command, er *ExecutionResult, logFile string) {
+type IoHelper struct{}
+
+func (io *IoHelper) printAlloc() {
+	m := &runtime.MemStats{}
+	go runtime.ReadMemStats(m)
+	fmt.Printf("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
+}
+
+// ANSI SQL LEFT style substring
+func (io *IoHelper) Left(s string, size int) (string, error) {
+
+	if s == "" {
+		return s, errors.New("EMPTY STRING")
+	}
+
+	leftSubstr := s[:size]
+
+	return leftSubstr, nil
+}
+
+// ANSI SQL RIGHT style substring
+func (io *IoHelper) Right(s string, size int) (string, error) {
+	if s == "" {
+		return s, errors.New("EMPTY STRING")
+	}
+
+	appliedSize := max((len(s) - size), 0)
+
+	return s[appliedSize:], nil
+}
+
+// Version 4 Google UUID (length 7) (UNSAFE, INTERNAL USE ONLY)
+func (io *IoHelper) NewShortUUID() (string, error) {
+
+	uuidString, err := io.Left(uuid.NewString(), 8)
+
+	return uuidString, err
+}
+
+func (io *IoHelper) DebugDump(cmd *Command, er *ExecutionResult, logFile string) {
 	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
 	// doesn't exist, and O_WRONLY opens the file in write-only mode.
 
@@ -407,7 +447,10 @@ func (s *DefaultScrubber) Scrub(
 type CommandStore interface {
 	Create(ctx context.Context, cmd *Command) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Command, error)
+	GetAll(ctx context.Context) (map[uuid.UUID]*Command, error)
 	Update(ctx context.Context, cmd *Command) error
+	//Delete - Stores don't delete. No compromised Audit trail. Every execution captured.
+	//Store size can be managed separately
 }
 
 type InMemoryCommandStore struct {
@@ -461,6 +504,17 @@ func (s *InMemoryCommandStore) GetByID(
 	return cmd, nil
 }
 
+// yield iter.Seq[*Command]?
+func (s *InMemoryCommandStore) GetAll(ctx context.Context) (map[uuid.UUID]*Command, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if len(s.data) == 0 {
+		return nil, errors.New("NO DATA IN STORE")
+	}
+
+	return s.data, nil
+}
+
 func (s *InMemoryCommandStore) Update(
 	ctx context.Context,
 	cmd *Command,
@@ -505,6 +559,8 @@ func (e *LocalExecutor) Execute(
 	cmd *Command,
 ) (*ExecutionResult, error) {
 
+	ioHelper := &IoHelper{}
+
 	start := time.Now()
 
 	c := exec.CommandContext(ctx, cmd.Name, cmd.Args...)
@@ -533,7 +589,7 @@ func (e *LocalExecutor) Execute(
 		result.Error = err.Error()
 	}
 
-	go DebugDump(cmd, result, "executions.log")
+	go ioHelper.DebugDump(cmd, result, "executions.log")
 
 	return result, err
 }
@@ -672,7 +728,7 @@ func ConsoleStdErrHandle(stdErr string) {
 
 //End FRAMEWORK
 
-// Concept or Runners and Testers <?> 2/15
+// Testing
 func ConsoleCommandTest() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -728,7 +784,7 @@ func ConsoleCommandTest() {
 }
 
 func main() {
-	fmt.Printf("%s", debug.Stack())
+	fmt.Printf("%s\n", debug.Stack())
 	log.SetPrefix("::Testing::")
 	log.SetFlags(0)
 	log.Print("main()::")
