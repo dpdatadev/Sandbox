@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"maps"
+	"os"
 	"os/exec"
 	"runtime/debug"
 	"slices"
@@ -196,12 +197,22 @@ const (
 	StatusFailed  CommandStatus = "FAILED"
 )
 
+// TODO
 const (
-	NIL = iota
-	TEXT
-	WEB
-	DATA
-	OTHER
+	_ = iota
+	CommandType_NIL
+	CommandType_TEXT
+	CommandType_WEB
+	CommandType_DATA
+	CommandType_OTHER
+)
+
+const (
+	_ = iota
+	RunnerType_Console
+	RunnerType_FlatFile
+	RunnerType_HTTP
+	RunnerType_UDP
 )
 
 var (
@@ -211,6 +222,41 @@ var (
 	PrintStdErr   = color.New(color.Bold, color.FgHiRed).PrintfFunc()
 	PrintFailure  = color.New(color.Bold, color.FgRed, color.Underline).PrintfFunc()
 )
+
+func DebugDump(cmd *Command, er *ExecutionResult, logFile string) {
+	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
+	// doesn't exist, and O_WRONLY opens the file in write-only mode.
+
+	if logFile == "" {
+		log.Printf("errors.New(\"\"): %v\n", errors.New("NO LOG FILE"))
+	}
+
+	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Ensure the file is closed when the main function exits.
+	defer file.Close()
+
+	// Set the standard logger's output to the file.
+	log.SetOutput(file)
+
+	// Log messages will now be written to "application.log" instead of stderr.
+	log.Println("===========================================================================================")
+	log.Println("::BEGIN EXECUTION::")
+	log.Println("Time: ", time.Now())
+	log.Println("Name: ", cmd.Name)
+	log.Println("Args: ", cmd.Args)
+	log.Println("Notes: ", cmd.Notes)
+	log.Println("Status: ", cmd.Status)
+	log.Println("StartedAt: ", er.StartedAt)
+	log.Println("EndedAt: ", er.EndedAt)
+	log.Println("Duration: ", er.Duration)
+	log.Println("ExitCode: ", er.ExitCode)
+	log.Println("::END EXECUTION::")
+	log.Println("===========================================================================================")
+}
 
 // TODO, add a way for the user to add more Deny Commands
 var DefaultDenyCommands = []string{
@@ -436,10 +482,10 @@ type ExecutionResult struct {
 
 	StartedAt time.Time
 	EndedAt   time.Time
-	Duration  time.Duration
+	Duration  time.Duration // TODO, we should handle this somewhere, important info
 }
 
-// Define the Executor contract for the Service layer. All Commands pass through the Executor.
+// Define the Executor contract for the Service layer. All Commands are Executed by Executors.
 type CommandExecutor interface {
 	Execute(
 		ctx context.Context,
@@ -487,6 +533,8 @@ func (e *LocalExecutor) Execute(
 		result.Error = err.Error()
 	}
 
+	go DebugDump(cmd, result, "executions.log")
+
 	return result, err
 }
 
@@ -510,6 +558,12 @@ func (s *CommandService) Run(
 	ctx context.Context,
 	cmd *Command,
 ) error {
+
+	if NewDefaultScrubber().Scrub(cmd) != nil {
+		violation := "SECURITY POLICY VIOLATED in COMMAND"
+		PrintFailure(violation)
+		panic(violation)
+	}
 
 	// Persist initial record
 	if err := s.Store.Create(ctx, cmd); err != nil {
@@ -540,21 +594,36 @@ func (s *CommandService) Run(
 	return s.Store.Update(ctx, cmd)
 }
 
-// TODO - phase 2:
-// Get database setup (SQLITE store)
-// Piping multiple commands (still local)
-// Get out of dev zone and create actual package structure
+// Types built for Automation and Testing purposes
+type CommandRunner interface {
+	RunCommands(svc *CommandService, ctx context.Context, cmds []*Command) []*Command
+}
 
-// TODO - phase 3:
-// Working with HTTP(S)
-// Working with SSH
-// Test Scrubers/Security
-// Metadata/Analysis/Examples
-// LAUNCH
+type ConsoleCommandRunner struct{}
+type HTTPCommandRunner struct{}
+type UDPCommandRunner struct{}
+type FlatFileCommandRunner struct{}
 
-// Testing
+// TODO!
+func NewCommandRunner(runnerType uint) CommandRunner {
+	// Not yet implemented
+	/*
+		switch runnerType {
+		case RunnerType_Console:
+			return &ConsoleCommandRunner{}
+		case RunnerType_FlatFile:
+			return &FlatFileCommandRunner{}
+		case RunnerType_HTTP:
+			return &HTTPCommandRunner{}
+		case RunnerType_UDP:
+			return &UDPCommandRunner{}
+		}
+	*/
+	log.Printf("<Remove in Test>::Default Runner Selected: %v", runnerType)
+	return &ConsoleCommandRunner{}
+}
 
-func ConsoleCommandRunner(
+func (ccr *ConsoleCommandRunner) RunCommands(
 	svc *CommandService,
 	ctx context.Context,
 	cmds []*Command,
@@ -582,14 +651,14 @@ func ConsoleCommandRunner(
 	return finished
 }
 
-// TODO
+// TODO create handlers for parsing output and doing stuff (or maybe that code should live somewhere else)
 func ConsoleStdOutHandle(stdOut string) {
 
 	if stdOut == "" {
 		fmt.Println("STDOUT CANNOT BE HANDLED")
 	}
 
-	fmt.Println("STDOUT HANDLED")
+	log.Println("STDOUT HANDLED")
 }
 
 func ConsoleStdErrHandle(stdErr string) {
@@ -598,11 +667,13 @@ func ConsoleStdErrHandle(stdErr string) {
 		fmt.Println("STDERR CANNOT BE HANDLED")
 	}
 
-	fmt.Println("STDERR HANDLED")
+	log.Println("STDERR HANDLED")
 }
 
+//End FRAMEWORK
+
 // Concept or Runners and Testers <?> 2/15
-func ConsoleRunner() {
+func ConsoleCommandTest() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		10*time.Second,
@@ -616,6 +687,8 @@ func ConsoleRunner() {
 
 	svc := NewCommandService(store, exec)
 
+	//TODO pass the list of commands from outside obviously
+
 	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
 
 	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config")
@@ -628,14 +701,11 @@ func ConsoleRunner() {
 
 	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3}
 
-	testCommands := ConsoleCommandRunner(svc, ctx, commands)
+	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
+
+	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands)
 
 	for _, cmd := range testCommands {
-
-		if NewDefaultScrubber().Scrub(cmd) != nil {
-			PrintFailure("SECURITY POLICY VIOLATED in COMMAND")
-			break
-		}
 
 		if cmd.Stderr != "" || cmd.Status == "FAILED" {
 			PrintFailure("Command ID: %v\n", cmd.ID)
@@ -663,5 +733,17 @@ func main() {
 	log.SetFlags(0)
 	log.Print("main()::")
 	fmt.Println("Testing Commander")
-	ConsoleRunner()
+	ConsoleCommandTest()
 }
+
+// TODO - phase 2:
+// Get database setup (SQLITE store)
+// Piping multiple commands (still local)
+// Get out of dev zone and create actual package structure
+
+// TODO - phase 3:
+// Working with HTTP(S)
+// Working with SSH
+// Test Scrubers/Security
+// Metadata/Analysis/Examples
+// LAUNCH
