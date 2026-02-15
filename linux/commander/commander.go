@@ -181,6 +181,8 @@ which validates, scrubs, executes, and handles directed output and logging.
 Each component hands off to the next.
 Command → Scrubber → Policy Engine → Logger → Executor → Post-Processor → Store
 
+2/15
+Post-Processor (Handlers?, this could be a tie into any app or process for Data Extraction/Analysis etc.,)
 
 Study this pattern*
 */
@@ -249,7 +251,7 @@ var DefaultProtectedPaths = []string{
 	"/usr",
 	"/lib",
 	"/sys",
-	"/proc",
+	//"/proc",
 	"/dev",
 }
 
@@ -552,7 +554,7 @@ func (s *CommandService) Run(
 
 // Testing
 
-func CommandTestRunner(
+func ConsoleCommandRunner(
 	svc *CommandService,
 	ctx context.Context,
 	cmds []*Command,
@@ -580,7 +582,27 @@ func CommandTestRunner(
 	return finished
 }
 
-func CommandSystemTest() {
+// TODO
+func ConsoleStdOutHandle(stdOut string) {
+
+	if stdOut == "" {
+		fmt.Println("STDOUT CANNOT BE HANDLED")
+	}
+
+	fmt.Println("STDOUT HANDLED")
+}
+
+func ConsoleStdErrHandle(stdErr string) {
+
+	if stdErr == "" {
+		fmt.Println("STDERR CANNOT BE HANDLED")
+	}
+
+	fmt.Println("STDERR HANDLED")
+}
+
+// Concept or Runners and Testers <?> 2/15
+func ConsoleRunner() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		10*time.Second,
@@ -594,33 +616,43 @@ func CommandSystemTest() {
 
 	svc := NewCommandService(store, exec)
 
-	cmd := NewCommand("ifconfig", []string{""}, "get local ip info")
+	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
 
-	cmd1 := NewCommand("ip", []string{"neighbor"}, "IP Test Command")
+	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config")
 
-	commands := []*Command{cmd, cmd1}
+	cmd1 := NewCommand("ip", []string{"neighbor"}, "Get IP Neighbor Output")
 
-	commands = append(commands, NewCommand("arp", []string{"-a"}, "Arp Test Command"))
+	cmd2 := NewCommand("free", []string{"-g", "-h"}, "Get Active Memory Usage")
 
-	testCommands := CommandTestRunner(svc, ctx, commands)
+	cmd3 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
+
+	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3}
+
+	testCommands := ConsoleCommandRunner(svc, ctx, commands)
 
 	for _, cmd := range testCommands {
 
 		if NewDefaultScrubber().Scrub(cmd) != nil {
-			panic("SECURITY POLICY VIOLATED in COMMAND")
+			PrintFailure("SECURITY POLICY VIOLATED in COMMAND")
+			break
 		}
 
-		PrintIdentity("Command ID: %v\n", cmd.ID)
-
-		if cmd.Status == "SUCCESS" {
-			PrintSuccess("Status: %v\n", cmd.Status)
-		}
-
-		PrintStdOut("STDOUT: %s\n", cmd.Stdout)
-
-		if cmd.Stderr != "" {
+		if cmd.Stderr != "" || cmd.Status == "FAILED" {
+			PrintFailure("Command ID: %v\n", cmd.ID)
+			PrintFailure("Command Name: %s\n", cmd.Name)
+			PrintFailure("Command Args: %s\n", cmd.Args)
 			PrintFailure("Status: %v\n", cmd.Status)
 			PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
+			ConsoleStdErrHandle(cmd.Stderr) //TODO
+		} else if cmd.Status == "SUCCESS" {
+			PrintIdentity("Command ID: %v\n", cmd.ID)
+			PrintIdentity("Command Name: %s\n", cmd.Name)
+			PrintIdentity("Command Args: %s\n", cmd.Args)
+			PrintSuccess("Status: %v\n", cmd.Status)
+			PrintStdOut("STDOUT:\n %s\n", cmd.Stdout)
+			ConsoleStdOutHandle(cmd.Stdout) //TODO
+		} else {
+			fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
 		}
 	}
 }
@@ -631,5 +663,5 @@ func main() {
 	log.SetFlags(0)
 	log.Print("main()::")
 	fmt.Println("Testing Commander")
-	CommandSystemTest()
+	ConsoleRunner()
 }
