@@ -263,6 +263,27 @@ func (io *IoHelper) NewShortUUID() (string, error) {
 	return uuidString, err
 }
 
+// Helper function for displaying/dumping Command info (default Console/Text/Printf())
+func (io *IoHelper) ConsoleDump(cmd *Command) {
+	if cmd.Stderr != "" || cmd.Status == "FAILED" {
+		PrintFailure("Command ID: %v\n", cmd.ID)
+		PrintFailure("Command Name: %s\n", cmd.Name)
+		PrintFailure("Command Args: %s\n", cmd.Args)
+		PrintFailure("Status: %v\n", cmd.Status)
+		PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
+		ConsoleStdErrHandle(cmd.Stderr) //TODO
+	} else if cmd.Status == "SUCCESS" {
+		PrintIdentity("Command ID: %v\n", cmd.ID)
+		PrintIdentity("Command Name: %s\n", cmd.Name)
+		PrintIdentity("Command Args: %s\n", cmd.Args)
+		PrintSuccess("Status: %v\n", cmd.Status)
+		PrintStdOut("STDOUT:\n %s\n", cmd.Stdout)
+		ConsoleStdOutHandle(cmd.Stdout) //TODO
+	} else {
+		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
+	}
+}
+
 func (io *IoHelper) DebugDump(cmd *Command, er *ExecutionResult, logFile string) {
 	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
 	// doesn't exist, and O_WRONLY opens the file in write-only mode.
@@ -761,25 +782,10 @@ func ConsoleCommandTest() {
 
 	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands)
 
-	for _, cmd := range testCommands {
+	ioHelper := &IoHelper{}
 
-		if cmd.Stderr != "" || cmd.Status == "FAILED" {
-			PrintFailure("Command ID: %v\n", cmd.ID)
-			PrintFailure("Command Name: %s\n", cmd.Name)
-			PrintFailure("Command Args: %s\n", cmd.Args)
-			PrintFailure("Status: %v\n", cmd.Status)
-			PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
-			ConsoleStdErrHandle(cmd.Stderr) //TODO
-		} else if cmd.Status == "SUCCESS" {
-			PrintIdentity("Command ID: %v\n", cmd.ID)
-			PrintIdentity("Command Name: %s\n", cmd.Name)
-			PrintIdentity("Command Args: %s\n", cmd.Args)
-			PrintSuccess("Status: %v\n", cmd.Status)
-			PrintStdOut("STDOUT:\n %s\n", cmd.Stdout)
-			ConsoleStdOutHandle(cmd.Stdout) //TODO
-		} else {
-			fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
-		}
+	for _, cmd := range testCommands {
+		ioHelper.ConsoleDump(cmd)
 	}
 }
 

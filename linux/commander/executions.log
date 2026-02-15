@@ -106,3 +106,133 @@
 ::Testing::ExitCode:  0
 ::Testing::::END EXECUTION::
 ::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:08:58.160390612 -0600 CST m=+0.001800379
+::Testing::Name:  uname
+::Testing::Args:  [-a]
+::Testing::Notes:  Local Host Info
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:08:58.159087372 -0600 CST m=+0.000497138
+::Testing::EndedAt:  2026-02-15 16:08:58.160288074 -0600 CST m=+0.001697840
+::Testing::Duration:  1.200702ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:08:58.160626579 -0600 CST m=+0.002036345
+::Testing::Name:  ifconfig
+::Testing::Args:  []
+::Testing::Notes:  Get Local NIC Config
+::Testing::Status:  FAILED
+::Testing::StartedAt:  2026-02-15 16:08:58.158905758 -0600 CST m=+0.000315524
+::Testing::EndedAt:  2026-02-15 16:08:58.16059156 -0600 CST m=+0.002001326
+::Testing::Duration:  1.685802ms
+::Testing::ExitCode:  1
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:08:58.16144885 -0600 CST m=+0.002858616
+::Testing::Name:  ip
+::Testing::Args:  [neighbor]
+::Testing::Notes:  Get IP Neighbor Output
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:08:58.158964666 -0600 CST m=+0.000374432
+::Testing::EndedAt:  2026-02-15 16:08:58.161366812 -0600 CST m=+0.002776670
+::Testing::Duration:  2.402238ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:08:58.16214836 -0600 CST m=+0.003558126
+::Testing::Name:  free
+::Testing::Args:  [-g -h]
+::Testing::Notes:  Get Active Memory Usage
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:08:58.159037482 -0600 CST m=+0.000447248
+::Testing::EndedAt:  2026-02-15 16:08:58.162082692 -0600 CST m=+0.003492458
+::Testing::Duration:  3.04521ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:08:58.183034472 -0600 CST m=+0.024444238
+::Testing::Name:  arp
+::Testing::Args:  [-a]
+::Testing::Notes:  Get Local ARP Cache
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:08:58.15886648 -0600 CST m=+0.000276264
+::Testing::EndedAt:  2026-02-15 16:08:58.182772006 -0600 CST m=+0.024181772
+::Testing::Duration:  23.905508ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:14:45.663167633 -0600 CST m=+0.009114459
+::Testing::Name:  ifconfig
+::Testing::Args:  []
+::Testing::Notes:  Get Local NIC Config
+::Testing::Status:  FAILED
+::Testing::StartedAt:  2026-02-15 16:14:45.654576143 -0600 CST m=+0.000522970
+::Testing::EndedAt:  2026-02-15 16:14:45.662993149 -0600 CST m=+0.008939994
+::Testing::Duration:  8.417024ms
+::Testing::ExitCode:  1
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:14:45.663525137 -0600 CST m=+0.009471963
+::Testing::Name:  ip
+::Testing::Args:  [neighbor]
+::Testing::Notes:  Get IP Neighbor Output
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:14:45.654508031 -0600 CST m=+0.000454858
+::Testing::EndedAt:  2026-02-15 16:14:45.663454025 -0600 CST m=+0.009400888
+::Testing::Duration:  8.94603ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:14:45.663853418 -0600 CST m=+0.009800245
+::Testing::Name:  uname
+::Testing::Args:  [-a]
+::Testing::Notes:  Local Host Info
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:14:45.654402252 -0600 CST m=+0.000349079
+::Testing::EndedAt:  2026-02-15 16:14:45.663765362 -0600 CST m=+0.009712207
+::Testing::Duration:  9.363128ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:14:45.664886171 -0600 CST m=+0.010832998
+::Testing::Name:  free
+::Testing::Args:  [-g -h]
+::Testing::Notes:  Get Active Memory Usage
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:14:45.654731367 -0600 CST m=+0.000678194
+::Testing::EndedAt:  2026-02-15 16:14:45.664745744 -0600 CST m=+0.010692626
+::Testing::Duration:  10.014432ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
+::Testing::===========================================================================================
+::Testing::::BEGIN EXECUTION::
+::Testing::Time:  2026-02-15 16:14:45.69659519 -0600 CST m=+0.042542016
+::Testing::Name:  arp
+::Testing::Args:  [-a]
+::Testing::Notes:  Get Local ARP Cache
+::Testing::Status:  SUCCESS
+::Testing::StartedAt:  2026-02-15 16:14:45.65439253 -0600 CST m=+0.000339357
+::Testing::EndedAt:  2026-02-15 16:14:45.696280093 -0600 CST m=+0.042226920
+::Testing::Duration:  41.887563ms
+::Testing::ExitCode:  0
+::Testing::::END EXECUTION::
+::Testing::===========================================================================================
