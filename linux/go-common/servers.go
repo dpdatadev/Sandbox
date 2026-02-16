@@ -30,8 +30,8 @@ func serviceEchoHandler(w http.ResponseWriter, req *http.Request) {
 	svc := NewCommandService(store, exec)
 
 	cmd := NewCommand(
-		"echo",
-		[]string{"Hello from Phase 1"},
+		"ip",
+		[]string{"neigbor"},
 		"test command",
 	)
 
