@@ -4,6 +4,7 @@ package main //package commander
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -489,7 +490,161 @@ type InMemoryCommandStore struct {
 	data map[uuid.UUID]*Command
 }
 
-//TODO - SQLITE memory store/file store
+/* SQLITE impl */ // TODO, testing
+// 2/16, flesh out, test, conform to CommandStore interface
+type SQLiteCommandStore struct {
+	db *sql.DB
+}
+
+func NewSqliteCommandStore(db *sql.DB) *SQLiteCommandStore {
+	return &SQLiteCommandStore{db: db}
+}
+
+func (s *SQLiteCommandStore) GetAll(
+	ctx context.Context,
+) ([]*Command, error) {
+
+	query := `
+        SELECT
+            id,
+            name,
+            status,
+            created_at,
+            started_at,
+            finished_at,
+            stdout,
+            stderr,
+            exit_code,
+            metadata_json
+        FROM commands
+        ORDER BY created_at DESC
+    `
+
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var commands []*Command
+
+	for rows.Next() {
+		cmd := new(Command)
+
+		err := rows.Scan(
+			&cmd.ID,
+			&cmd.Name,
+			&cmd.Status,
+			&cmd.CreatedAt,
+			&cmd.StartedAt,
+			&cmd.EndedAt,
+			&cmd.Stdout,
+			&cmd.Stderr,
+			&cmd.ExitCode,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		commands = append(commands, cmd)
+	}
+
+	return commands, nil
+}
+
+// TODO
+func (s *SQLiteCommandStore) GetRecent(
+	ctx context.Context,
+	limit uint,
+) ([]*Command, error) {
+
+	query := `
+        SELECT
+            id,
+            name,
+            status,
+            created_at,
+            started_at,
+            finished_at,
+            stdout,
+            stderr,
+            exit_code,
+            metadata_json
+        FROM commands
+        ORDER BY created_at DESC
+        LIMIT ?
+    `
+
+	rows, err := s.db.QueryContext(ctx, query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var commands []*Command
+
+	for rows.Next() {
+		cmd := new(Command)
+
+		err := rows.Scan(
+			&cmd.ID,
+			&cmd.Name,
+			&cmd.Status,
+			&cmd.CreatedAt,
+			&cmd.StartedAt,
+			&cmd.EndedAt,
+			&cmd.Stdout,
+			&cmd.Stderr,
+			&cmd.ExitCode,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		commands = append(commands, cmd)
+	}
+
+	return commands, nil
+}
+
+func (s *SQLiteCommandStore) Create(
+	ctx context.Context,
+	cmd *Command,
+) error {
+
+	query := `
+        INSERT INTO commands (
+            id,
+            name,
+            status,
+            created_at,
+            started_at,
+            finished_at,
+            stdout,
+            stderr,
+            exit_code,
+            metadata_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
+
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		cmd.ID,
+		cmd.Name,
+		cmd.Status,
+		cmd.CreatedAt,
+		cmd.StartedAt,
+		cmd.EndedAt,
+		cmd.Stdout,
+		cmd.Stderr,
+		cmd.ExitCode,
+	)
+
+	return err
+}
+
 //TODO - Postgres store
 
 func NewInMemoryStore() *InMemoryCommandStore {
@@ -581,6 +736,25 @@ func (s *InMemoryCommandStore) Update(
 	s.data[cmd.ID] = cmd
 	return nil
 }
+
+//SQL Store Implementation (SQLITE default)
+/*
+CREATE TABLE IF NOT EXISTS commands (
+    id            TEXT PRIMARY KEY,
+    name          TEXT NOT NULL,
+    status        TEXT NOT NULL,
+    created_at    DATETIME NOT NULL,
+    started_at    DATETIME,
+    finished_at   DATETIME,
+    stdout        TEXT,
+    stderr        TEXT,
+    exit_code     INTEGER,
+    metadata_json TEXT
+);
+
+CREATE INDEX idx_commands_created_at
+ON commands(created_at DESC);
+*/
 
 //2/15 TODO
 // Lineage tracking? Command History Linked structure?
