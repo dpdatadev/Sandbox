@@ -1081,9 +1081,11 @@ func ConsoleCommandTest() {
 	exec := NewLocalExecutor()
 	//store := NewSSHStore()
 
+	//Here we will use the default(Memory Store, Local Execution)
 	svc := NewCommandService(store, exec)
 
-	//TODO pass the list of commands from outside obviously
+	// I could just as well call NewCommandService to return a RemoteSSH executor to download logs into a SQLITE Store
+	//svc := NewCommandService(sqlStore, sshExec)
 
 	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
 
@@ -1098,8 +1100,6 @@ func ConsoleCommandTest() {
 	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND")
 
 	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4}
-
-	// TODO, get previously ran commands from the database
 
 	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
 
