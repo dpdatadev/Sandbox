@@ -647,7 +647,7 @@ func (s *CommandService) Run(
 ) error {
 
 	if NewDefaultScrubber().Scrub(cmd) != nil {
-		violation := "SECURITY POLICY VIOLATED in COMMAND"
+		violation := "SECURITY POLICY TRIGGERED"
 
 		// Mark rejected
 		cmd.Status = StatusRejected
@@ -656,8 +656,8 @@ func (s *CommandService) Run(
 		cmd.Stderr = violation
 		cmd.EndedAt = time.Now()
 		s.Store.Update(ctx, cmd) // Keep track of our rejections (Audit everything. Track everything.)
-		PrintFailure(cmd.Name)
-		PrintFailure(string(StatusRejected))
+		//PrintFailure(cmd.Name)
+		//PrintFailure(string(StatusRejected))
 		PrintFailure(violation)
 		return errors.New(string(StatusRejected))
 	}
@@ -737,7 +737,7 @@ func (ccr *ConsoleCommandRunner) RunCommands(
 			defer wg.Done()
 
 			if err := svc.Run(ctx, cmd); err != nil {
-				panic(err) //todo remove all panics from framework code
+				PrintFailure("\nERR --> See Logs::<<%v>>::\n", err) //todo remove all panics from framework code
 			}
 
 			finished[i] = cmd
@@ -802,7 +802,11 @@ func ConsoleCommandTest() {
 
 	cmd3 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
 
-	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3}
+	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND")
+
+	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4}
+
+	// TODO, get previously ran commands from the database
 
 	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
 
@@ -811,10 +815,8 @@ func ConsoleCommandTest() {
 	ioHelper := &IoHelper{}
 
 	for _, cmd := range testCommands {
-		go ioHelper.ConsoleDump(cmd)
+		ioHelper.ConsoleDump(cmd)
 	}
-
-	ioHelper.printAlloc()
 }
 
 // Testing
