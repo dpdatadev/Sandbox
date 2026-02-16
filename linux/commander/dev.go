@@ -1,3 +1,4 @@
+// Single file view of all code, docs, examples, and dependencies; to later be split into production module/package(s)
 package main //package commander
 //https://go.dev/blog/using-go-modules
 import (
@@ -185,6 +186,7 @@ Command → Scrubber → Policy Engine → Logger → Executor → Post-Processo
 
 2/15
 Post-Processor (Handlers?, this could be a tie into any app or process for Data Extraction/Analysis etc.,)
+Processing the data is the responsiblity of another framework or user code and doesn't belong in the framework(maybe)
 
 Study this pattern*
 */
@@ -192,10 +194,11 @@ Study this pattern*
 type CommandStatus string // Reporting the status of the command
 
 const (
-	StatusPending CommandStatus = "PENDING"
-	StatusRunning CommandStatus = "RUNNING"
-	StatusSuccess CommandStatus = "SUCCESS"
-	StatusFailed  CommandStatus = "FAILED"
+	StatusPending  CommandStatus = "PENDING"
+	StatusRunning  CommandStatus = "RUNNING"
+	StatusSuccess  CommandStatus = "SUCCESS"
+	StatusFailed   CommandStatus = "FAILED"
+	StatusRejected CommandStatus = "REJECTED (SECURITY)"
 )
 
 // TODO
@@ -222,6 +225,7 @@ var (
 	PrintStdOut   = color.New(color.Bold, color.FgYellow).PrintfFunc()
 	PrintStdErr   = color.New(color.Bold, color.FgHiRed).PrintfFunc()
 	PrintFailure  = color.New(color.Bold, color.FgRed, color.Underline).PrintfFunc()
+	PrintDebug    = color.New(color.Bold, color.FgBlue, color.Italic).PrintfFunc()
 )
 
 type IoHelper struct{}
@@ -229,7 +233,7 @@ type IoHelper struct{}
 func (io *IoHelper) printAlloc() {
 	m := &runtime.MemStats{}
 	go runtime.ReadMemStats(m)
-	fmt.Printf("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
+	PrintDebug("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
 }
 
 // ANSI SQL LEFT style substring
@@ -271,20 +275,20 @@ func (io *IoHelper) ConsoleDump(cmd *Command) {
 		PrintFailure("Command Args: %s\n", cmd.Args)
 		PrintFailure("Status: %v\n", cmd.Status)
 		PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
-		ConsoleStdErrHandle(cmd.Stderr) //TODO
+		//ConsoleStdErrHandle(cmd.Stderr) //TODO
 	} else if cmd.Status == "SUCCESS" {
 		PrintIdentity("Command ID: %v\n", cmd.ID)
 		PrintIdentity("Command Name: %s\n", cmd.Name)
 		PrintIdentity("Command Args: %s\n", cmd.Args)
 		PrintSuccess("Status: %v\n", cmd.Status)
 		PrintStdOut("STDOUT:\n %s\n", cmd.Stdout)
-		ConsoleStdOutHandle(cmd.Stdout) //TODO
+		//ConsoleStdOutHandle(cmd.Stdout) //TODO
 	} else {
 		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
 	}
 }
 
-func (io *IoHelper) DebugDump(cmd *Command, er *ExecutionResult, logFile string) {
+func (io *IoHelper) FileDump(cmd *Command, er *ExecutionResult, logFile string) {
 	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
 	// doesn't exist, and O_WRONLY opens the file in write-only mode.
 
@@ -374,8 +378,7 @@ type Command struct {
 	ExitCode int
 	Error    string
 
-	Status CommandStatus
-
+	Status    CommandStatus
 	CreatedAt time.Time
 	StartedAt time.Time
 	EndedAt   time.Time
@@ -548,6 +551,11 @@ func (s *InMemoryCommandStore) Update(
 	return nil
 }
 
+//2/15 TODO
+// Lineage tracking? Command History Linked structure?
+// Graph/chained output for debugging
+// Traverse and Rewind capability(?)
+
 // Stores the results/metadata of a Command Operation
 type ExecutionResult struct {
 	Stdout   string
@@ -590,6 +598,7 @@ func (e *LocalExecutor) Execute(
 	c.Stdout = &stdout
 	c.Stderr = &stderr
 
+	//Security Audit/Scub check happens in Service, only valid commands make it to the Executor
 	err := c.Run()
 
 	end := time.Now()
@@ -610,14 +619,15 @@ func (e *LocalExecutor) Execute(
 		result.Error = err.Error()
 	}
 
-	go ioHelper.DebugDump(cmd, result, "executions.log")
+	go ioHelper.FileDump(cmd, result, "executions.log") //debug
 
 	return result, err
 }
 
 // A Command Service must have access to an Executor for managing Commands and a Store for persisting results.
+// The service handles implementation specific details and communication.
 type CommandService struct {
-	Store    CommandStore
+	Store    CommandStore //TODO, document these
 	Executor CommandExecutor
 }
 
@@ -638,8 +648,18 @@ func (s *CommandService) Run(
 
 	if NewDefaultScrubber().Scrub(cmd) != nil {
 		violation := "SECURITY POLICY VIOLATED in COMMAND"
+
+		// Mark rejected
+		cmd.Status = StatusRejected
+		cmd.StartedAt = time.Now()
+		cmd.Stdout = violation
+		cmd.Stderr = violation
+		cmd.EndedAt = time.Now()
+		s.Store.Update(ctx, cmd) // Keep track of our rejections (Audit everything. Track everything.)
+		PrintFailure(cmd.Name)
+		PrintFailure(string(StatusRejected))
 		PrintFailure(violation)
-		panic(violation)
+		return errors.New(string(StatusRejected))
 	}
 
 	// Persist initial record
@@ -729,6 +749,10 @@ func (ccr *ConsoleCommandRunner) RunCommands(
 }
 
 // TODO create handlers for parsing output and doing stuff (or maybe that code should live somewhere else)
+// Or more sophisticated code could live somewhere else and it wouldn't be a bad thing to simply attach a default Callback
+// For now we have console commands and output is dumped to screen or file
+// After more thought, handlers shouldn't be attached to Commands. Commands should just contain data to be passed along.
+// They don't perform associated behaviors, they describe them. The backing Executor i.e., (os.Process)/(net/http) etc., performs the behavior.
 func ConsoleStdOutHandle(stdOut string) {
 
 	if stdOut == "" {
@@ -749,12 +773,14 @@ func ConsoleStdErrHandle(stdErr string) {
 
 //End FRAMEWORK
 
-// Testing
+// Orchestrate sample commands with ConsoleRunner for Testing
 func ConsoleCommandTest() {
+	// Users are responsible for passing a context, which can have different configurations
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		10*time.Second,
 	)
+
 	defer cancel()
 
 	store := NewInMemoryStore()
@@ -785,10 +811,13 @@ func ConsoleCommandTest() {
 	ioHelper := &IoHelper{}
 
 	for _, cmd := range testCommands {
-		ioHelper.ConsoleDump(cmd)
+		go ioHelper.ConsoleDump(cmd)
 	}
+
+	ioHelper.printAlloc()
 }
 
+// Testing
 func main() {
 	fmt.Printf("%s\n", debug.Stack())
 	log.SetPrefix("::Testing::")
