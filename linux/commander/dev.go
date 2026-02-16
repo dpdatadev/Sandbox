@@ -230,7 +230,7 @@ var (
 
 type IoHelper struct{}
 
-func (io *IoHelper) printAlloc() {
+func (io *IoHelper) printHeap() {
 	m := &runtime.MemStats{}
 	go runtime.ReadMemStats(m)
 	PrintDebug("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
@@ -259,6 +259,20 @@ func (io *IoHelper) Right(s string, size int) (string, error) {
 	return s[appliedSize:], nil
 }
 
+// Return files for Logging or dumping
+func (io *IoHelper) GetFile(fileName string) *os.File {
+	if fileName == "" {
+		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
+	}
+
+	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		PrintFailure("errors.New(\"\"): %v\n", err)
+	}
+
+	return file
+}
+
 // Version 4 Google UUID (length 7) (UNSAFE, INTERNAL USE ONLY)
 func (io *IoHelper) NewShortUUID() (string, error) {
 
@@ -277,50 +291,39 @@ func (io *IoHelper) ConsoleDump(cmd *Command) {
 		PrintStdErr("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
 		//ConsoleStdErrHandle(cmd.Stderr) //TODO
 	} else if cmd.Status == "SUCCESS" {
-		PrintIdentity("Command ID: %v\n", cmd.ID)
+		PrintIdentity("\nCommand ID: %v\n", cmd.ID)
 		PrintIdentity("Command Name: %s\n", cmd.Name)
 		PrintIdentity("Command Args: %s\n", cmd.Args)
 		PrintSuccess("Status: %v\n", cmd.Status)
 		PrintStdOut("STDOUT:\n %s\n", cmd.Stdout)
+		fmt.Println()
 		//ConsoleStdOutHandle(cmd.Stdout) //TODO
 	} else {
 		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
 	}
 }
 
-func (io *IoHelper) FileDump(cmd *Command, er *ExecutionResult, logFile string) {
-	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
-	// doesn't exist, and O_WRONLY opens the file in write-only mode.
+func (io *IoHelper) FileDump(cmd *Command, logFile string) {
 
-	if logFile == "" {
-		log.Printf("errors.New(\"\"): %v\n", errors.New("NO LOG FILE"))
+	log.SetOutput(io.GetFile(logFile))
+
+	if cmd.Stderr != "" || cmd.Status == "FAILED" {
+		log.Fatalf("Command ID: %v\n", cmd.ID)
+		log.Fatalf("Command Name: %s\n", cmd.Name)
+		log.Fatalf("Command Args: %s\n", cmd.Args)
+		log.Fatalf("Status: %v\n", cmd.Status)
+		log.Fatalf("STDERR: %s::<%s>\n", cmd.Stderr, cmd.Error)
+		//ConsoleStdErrHandle(cmd.Stderr) //TODO
+	} else if cmd.Status == "SUCCESS" {
+		log.Printf("Command ID: %v\n", cmd.ID)
+		log.Printf("Command Name: %s\n", cmd.Name)
+		log.Printf("Command Args: %s\n", cmd.Args)
+		log.Printf("Status: %v\n", cmd.Status)
+		log.Printf("STDOUT:\n %s\n", cmd.Stdout)
+		//ConsoleStdOutHandle(cmd.Stdout) //TODO
+	} else {
+		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
 	}
-
-	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Ensure the file is closed when the main function exits.
-	defer file.Close()
-
-	// Set the standard logger's output to the file.
-	log.SetOutput(file)
-
-	// Log messages will now be written to "application.log" instead of stderr.
-	log.Println("===========================================================================================")
-	log.Println("::BEGIN EXECUTION::")
-	log.Println("Time: ", time.Now())
-	log.Println("Name: ", cmd.Name)
-	log.Println("Args: ", cmd.Args)
-	log.Println("Notes: ", cmd.Notes)
-	log.Println("Status: ", cmd.Status)
-	log.Println("StartedAt: ", er.StartedAt)
-	log.Println("EndedAt: ", er.EndedAt)
-	log.Println("Duration: ", er.Duration)
-	log.Println("ExitCode: ", er.ExitCode)
-	log.Println("::END EXECUTION::")
-	log.Println("===========================================================================================")
 }
 
 // TODO, add a way for the user to add more Deny Commands
@@ -469,9 +472,13 @@ func (s *DefaultScrubber) Scrub(
 }
 
 type CommandStore interface {
+	//Store a single Command (InMemory, SQLITE, FlatFile)
 	Create(ctx context.Context, cmd *Command) error
+	//Retrieve a single Command Record
 	GetByID(ctx context.Context, id uuid.UUID) (*Command, error)
-	GetAll(ctx context.Context) (map[uuid.UUID]*Command, error)
+	//Retrieve all previous Command Records (return any depends on implementation)
+	GetAll(ctx context.Context) ([]*Command, error)
+	//Update a single Command record, usually called internally for updating active Commands
 	Update(ctx context.Context, cmd *Command) error
 	//Delete - Stores don't delete. No compromised Audit trail. Every execution captured.
 	//Store size can be managed separately
@@ -528,13 +535,37 @@ func (s *InMemoryCommandStore) GetByID(
 	return cmd, nil
 }
 
-// yield iter.Seq[*Command]?
-func (s *InMemoryCommandStore) GetAll(ctx context.Context) (map[uuid.UUID]*Command, error) {
+// InMemoryStore puts data in Map (for various reasons), but API always works with an Array/Slice
+func (s *InMemoryCommandStore) GetAll(ctx context.Context) ([]*Command, error) {
+
+	// Honor context cancellation
+	//Overkill here, add in SQL and Network Stores
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+	}
+
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+
 	if len(s.data) == 0 {
-		return nil, errors.New("NO DATA IN STORE")
+		return []*Command{}, nil
 	}
+
+	mapToList := make([]*Command, 0, len(s.data))
+
+	for _, cmd := range s.data {
+		mapToList = append(mapToList, cmd)
+	}
+
+	return mapToList, nil
+}
+
+// internal function for InMemoryCommandStore to return the in memory map as is (not a List)
+func (s *InMemoryCommandStore) memoryMap() (map[uuid.UUID]*Command, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	return s.data, nil
 }
@@ -572,7 +603,7 @@ type ExecutionResult struct {
 type CommandExecutor interface {
 	Execute(
 		ctx context.Context,
-		cmd *Command,
+		cmd *Command, debug bool,
 	) (*ExecutionResult, error)
 }
 
@@ -583,12 +614,40 @@ func NewLocalExecutor() *LocalExecutor {
 	return &LocalExecutor{}
 }
 
-func (e *LocalExecutor) Execute(
-	ctx context.Context,
-	cmd *Command,
-) (*ExecutionResult, error) {
+func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFile string) {
+	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
+	// doesn't exist, and O_WRONLY opens the file in write-only mode.
 
 	ioHelper := &IoHelper{}
+
+	file := ioHelper.GetFile(logFile)
+
+	// Ensure the file is closed when the main function exits.
+	defer file.Close()
+
+	// Set the standard logger's output to the file.
+	log.SetOutput(file)
+
+	// Log messages will now be written to "application.log" instead of stderr.
+	log.Println("===========================================================================================")
+	log.Println("::BEGIN EXECUTION::")
+	log.Println("Time: ", time.Now())
+	log.Println("Name: ", cmd.Name)
+	log.Println("Args: ", cmd.Args)
+	log.Println("Notes: ", cmd.Notes)
+	log.Println("Status: ", cmd.Status)
+	log.Println("Command Started: ", cmd.StartedAt)
+	log.Println("Execution Ended: ", er.EndedAt)
+	log.Println("Duration: ", er.Duration)
+	log.Println("ExitCode: ", er.ExitCode)
+	log.Println("::END EXECUTION::")
+	log.Println("===========================================================================================")
+}
+
+func (e *LocalExecutor) Execute(
+	ctx context.Context,
+	cmd *Command, debug bool,
+) (*ExecutionResult, error) {
 
 	start := time.Now()
 
@@ -619,15 +678,30 @@ func (e *LocalExecutor) Execute(
 		result.Error = err.Error()
 	}
 
-	go ioHelper.FileDump(cmd, result, "executions.log") //debug
+	if debug {
+		go e.debugDump(cmd, result, "executions.log")
+	}
 
 	return result, err
 }
 
+// This contract defines the API/entrypoint for end-user capabilities
+// The implementation can specify anything else involved with Running the service
+// ie, the CommandService Executes, Stores, and Retrieves data but is all encompassed by a call to "Run"
+// RunHistory is a way to view and interact with prior Service Runs
+// ie, the CommandService impl will return (Store.GetAll()) all prior or specifc (Store.GetById()) Service Runs
+/*
+type Service interface {
+	Run(ctx context.Context, a any) error
+	RunHistory(ctx context.Context, limit uint) ([]*any, error)
+}
+*/
+
 // A Command Service must have access to an Executor for managing Commands and a Store for persisting results.
 // The service handles implementation specific details and communication.
 type CommandService struct {
-	Store    CommandStore //TODO, document these
+	//Service
+	Store    CommandStore
 	Executor CommandExecutor
 }
 
@@ -641,9 +715,42 @@ func NewCommandService(
 	}
 }
 
-func (s *CommandService) Run(
+// TODO
+func (s *CommandService) CommandHistory(ctx context.Context, limit uint) ([]*Command, error) {
+	var ok error
+	var allCommands []*Command
+	var commandSubset []*Command
+
+	if limit == 0 {
+		allCommands, ok = s.Store.GetAll(ctx)
+		if ok != nil {
+			return nil, errors.New("ERR - RETRIEVAL")
+		}
+		return allCommands, nil
+	}
+
+	if limit > 0 {
+		var subsetLimit uint
+		if limit > 1 {
+			subsetLimit = limit - 1
+		}
+		commandSubset = make([]*Command, limit)
+		allCommands, ok = s.Store.GetAll(ctx)
+		if ok != nil {
+			return nil, errors.New("ERR - RETRIEVAL")
+		}
+		for i := range subsetLimit {
+			commandSubset = append(commandSubset, allCommands[i])
+		}
+		return commandSubset, nil
+	}
+
+	return nil, errors.New("unexpected error has occurred")
+}
+
+func (s *CommandService) RunCommand(
 	ctx context.Context,
-	cmd *Command,
+	cmd *Command, debug bool,
 ) error {
 
 	if NewDefaultScrubber().Scrub(cmd) != nil {
@@ -655,7 +762,9 @@ func (s *CommandService) Run(
 		cmd.Stdout = violation
 		cmd.Stderr = violation
 		cmd.EndedAt = time.Now()
-		s.Store.Update(ctx, cmd) // Keep track of our rejections (Audit everything. Track everything.)
+		// Keep track of our rejections (Audit everything. Track everything.)
+		// We may also keep security violations in a separate text log
+		s.Store.Update(ctx, cmd)
 		//PrintFailure(cmd.Name)
 		//PrintFailure(string(StatusRejected))
 		PrintFailure(violation)
@@ -673,7 +782,7 @@ func (s *CommandService) Run(
 	s.Store.Update(ctx, cmd)
 
 	// Execute
-	result, err := s.Executor.Execute(ctx, cmd)
+	result, err := s.Executor.Execute(ctx, cmd, debug)
 
 	// Apply results
 	cmd.Stdout = result.Stdout
@@ -693,7 +802,7 @@ func (s *CommandService) Run(
 
 // Types built for Automation and Testing purposes
 type CommandRunner interface {
-	RunCommands(svc *CommandService, ctx context.Context, cmds []*Command) []*Command
+	RunCommands(svc *CommandService, ctx context.Context, cmds []*Command, debug bool) []*Command
 }
 
 type ConsoleCommandRunner struct{}
@@ -723,7 +832,7 @@ func NewCommandRunner(runnerType uint) CommandRunner {
 func (ccr *ConsoleCommandRunner) RunCommands(
 	svc *CommandService,
 	ctx context.Context,
-	cmds []*Command,
+	cmds []*Command, debug bool,
 ) []*Command {
 
 	var wg sync.WaitGroup
@@ -736,8 +845,8 @@ func (ccr *ConsoleCommandRunner) RunCommands(
 		go func(i int, cmd *Command) {
 			defer wg.Done()
 
-			if err := svc.Run(ctx, cmd); err != nil {
-				PrintFailure("\nERR --> See Logs::<<%v>>::\n", err) //todo remove all panics from framework code
+			if err := svc.RunCommand(ctx, cmd, debug); err != nil {
+				PrintFailure("\nERR --> See Logs::<<%v>>::\n", err)
 			}
 
 			finished[i] = cmd
@@ -748,30 +857,40 @@ func (ccr *ConsoleCommandRunner) RunCommands(
 	return finished
 }
 
-// TODO create handlers for parsing output and doing stuff (or maybe that code should live somewhere else)
-// Or more sophisticated code could live somewhere else and it wouldn't be a bad thing to simply attach a default Callback
-// For now we have console commands and output is dumped to screen or file
-// After more thought, handlers shouldn't be attached to Commands. Commands should just contain data to be passed along.
-// They don't perform associated behaviors, they describe them. The backing Executor i.e., (os.Process)/(net/http) etc., performs the behavior.
-func ConsoleStdOutHandle(stdOut string) {
-
-	if stdOut == "" {
-		fmt.Println("STDOUT CANNOT BE HANDLED")
-	}
-
-	log.Println("STDOUT HANDLED")
-}
-
-func ConsoleStdErrHandle(stdErr string) {
-
-	if stdErr == "" {
-		fmt.Println("STDERR CANNOT BE HANDLED")
-	}
-
-	log.Println("STDERR HANDLED")
-}
-
 //End FRAMEWORK
+/*
+func GetAllTest() {
+
+	ioHelper := &IoHelper{}
+
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		10.*time.Second,
+	)
+
+	defer cancel()
+
+	store := NewSqlStore() // TODO
+
+	exec := NewLocalExecutor()
+
+	svc := NewCommandService(store, exec)
+
+	commandHistory, err := svc.CommandHistory(ctx, 0)
+	if err != nil {
+		PrintFailure("TEST FAIL")
+	}
+
+	if len(commandHistory) == 0 {
+		PrintFailure("CMD HISTORY NOT PERSISTED")
+	} else {
+
+		for i, cmd := range commandHistory {
+			ioHelper.ConsoleDump(cmd, fmt.Sprintf("%d_output.txt", i))
+		}
+	}
+}
+*/
 
 // Orchestrate sample commands with ConsoleRunner for Testing
 func ConsoleCommandTest() {
@@ -794,7 +913,7 @@ func ConsoleCommandTest() {
 
 	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
 
-	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config")
+	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config") // TODO, deal with default no args
 
 	cmd1 := NewCommand("ip", []string{"neighbor"}, "Get IP Neighbor Output")
 
@@ -810,7 +929,7 @@ func ConsoleCommandTest() {
 
 	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
 
-	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands)
+	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
 
 	ioHelper := &IoHelper{}
 
@@ -829,8 +948,14 @@ func main() {
 	ConsoleCommandTest()
 }
 
+//Feb week 3
+//SQLITE impl
+//Default args
+//Client code with baseline v0 API
+//Simple http/net or udp exposure
+
 // TODO - phase 2:
-// Get database setup (SQLITE store)
+// Lineage/history
 // Piping multiple commands (still local)
 // Get out of dev zone and create actual package structure
 
