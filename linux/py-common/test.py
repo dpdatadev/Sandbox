@@ -39,9 +39,17 @@ def TraverseCommandHistory(cmd: Command) -> list[Command]:
 
 def test():
     # TODO, do some more work with linked lists
+    # Prototyping lineage tracking
+    c3 = Command(4, "cron")
+    c2 = Command(3, "ifconfig")
+    c1 = Command(2, "arp")
+    c0 = Command(1, "uname")
 
-    #TraverseCommandHistory(c0)
-    pass
+    testCmds = [c0, c1, c2, c3]
+
+    # TODO
+
+    TraverseCommandHistory(c0)
 
 if __name__ == '__main__':
     test()

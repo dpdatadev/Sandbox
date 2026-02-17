@@ -192,14 +192,32 @@ Processing the data is the responsiblity of another framework or user code and d
 Study this pattern*
 */
 
-type CommandStatus string // Reporting the status of the command
+//Why not just use Proctools like Goreman?
+//Depends on what you're goal is:
+/*
+	| Capability            | Procfile Tools | SysData Ops            |
+| --------------------- | -------------- | ---------------------- |
+| Process orchestration | ✅              | ⚠️ (secondary)         |
+| Multi-service startup | ✅              | Possible               |
+| Log aggregation       | Basic          | Structured + queryable |
+| Artifact persistence  | ❌              | ✅                      |
+| Schema enforcement    | ❌              | ✅                      |
+| Command lineage       | ❌              | ✅                      |
+| Replay execution      | ❌              | ✅                      |
+| Deterministic runs    | ❌              | ✅                      |
+| Execution DAGs        | ❌              | ✅                      |
+| Data cataloging       | ❌              | ✅                      |
+| Observability depth   | Low            | High                   |
 
+*/
+
+// Reporting the status of the command
 const (
-	StatusPending  CommandStatus = "PENDING"
-	StatusRunning  CommandStatus = "RUNNING"
-	StatusSuccess  CommandStatus = "SUCCESS"
-	StatusFailed   CommandStatus = "FAILED"
-	StatusRejected CommandStatus = "REJECTED (SECURITY)"
+	StatusPending  = "PENDING"
+	StatusRunning  = "RUNNING"
+	StatusSuccess  = "SUCCESS"
+	StatusFailed   = "FAILED"
+	StatusRejected = "REJECTED (SECURITY)"
 )
 
 const (
@@ -299,7 +317,7 @@ func (io *IoHelper) ConsoleDump(cmd *Command) {
 		fmt.Println()
 		//ConsoleStdOutHandle(cmd.Stdout) //TODO
 	} else {
-		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
+		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %s", cmd.ID.String()))
 	}
 }
 
@@ -322,7 +340,7 @@ func (io *IoHelper) FileDump(cmd *Command, logFile string) {
 		log.Printf("STDOUT:\n %s\n", cmd.Stdout)
 		//ConsoleStdOutHandle(cmd.Stdout) //TODO
 	} else {
-		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %v", cmd))
+		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %s", cmd.ID.String()))
 	}
 }
 
@@ -398,7 +416,7 @@ type Command struct {
 	ExitCode int
 	Error    string
 
-	Status    CommandStatus
+	Status    string
 	CreatedAt time.Time
 	StartedAt time.Time
 	EndedAt   time.Time
@@ -522,7 +540,7 @@ func (s *SQLiteCommandStore) GetAll(
 
 	query := `
         SELECT
-            id,
+            uuid,
             name,
             status,
             created_at,
@@ -530,8 +548,7 @@ func (s *SQLiteCommandStore) GetAll(
             finished_at,
             stdout,
             stderr,
-            exit_code,
-            metadata_json
+            exit_code
         FROM commands
         ORDER BY created_at DESC
     `
@@ -575,7 +592,7 @@ func (s *SQLiteCommandStore) GetByID(
 
 	query := `
         SELECT
-            id,
+			uuid,
             name,
             status,
             created_at,
@@ -583,10 +600,9 @@ func (s *SQLiteCommandStore) GetByID(
             finished_at,
             stdout,
             stderr,
-            exit_code,
-            metadata_json
+            exit_code
         FROM commands
-        WHERE id = ?
+        WHERE uuid = ?
         LIMIT 1
     `
 	uuidString := uuid.String()
@@ -633,9 +649,8 @@ func (s *SQLiteCommandStore) Update(
             finished_at = ?,
             stdout = ?,
             stderr = ?,
-            exit_code = ?,
-            metadata_json = ?
-        WHERE id = ?
+            exit_code = ?
+        WHERE uuid = ?
     `
 
 	result, err := s.db.ExecContext(
@@ -721,7 +736,7 @@ func (s *SQLiteCommandStore) MarkStarted(
         SET
             status = 'RUNNING',
             started_at = ?
-        WHERE id = ?
+        WHERE uuid = ?
     `
 
 	_, err := s.db.ExecContext(
@@ -751,7 +766,7 @@ func (s *SQLiteCommandStore) MarkFinished(
             exit_code = ?,
             stdout = ?,
             stderr = ?
-        WHERE id = ?
+        WHERE uuid = ?
     `
 
 	_, err := s.db.ExecContext(
@@ -775,7 +790,7 @@ func (s *SQLiteCommandStore) GetRecent(
 
 	query := `
         SELECT
-            id,
+			uuid,
             name,
             status,
             created_at,
@@ -783,9 +798,8 @@ func (s *SQLiteCommandStore) GetRecent(
             finished_at,
             stdout,
             stderr,
-            exit_code,
-            metadata_json
-        FROM commands
+            exit_code        
+			FROM commands
         ORDER BY created_at DESC
         LIMIT ?
     `
@@ -829,7 +843,7 @@ func (s *SQLiteCommandStore) Create(
 
 	query := `
         INSERT INTO commands (
-            id,
+            uuid,
             name,
             status,
             created_at,
@@ -837,10 +851,9 @@ func (s *SQLiteCommandStore) Create(
             finished_at,
             stdout,
             stderr,
-            exit_code,
-            metadata_json
+            exit_code
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
 
 	_, err := s.db.ExecContext(
@@ -1143,6 +1156,7 @@ func (s *CommandService) RunCommand(
 ) error {
 
 	if NewDefaultScrubber().Scrub(cmd) != nil {
+		//ioHelper := &IoHelper{}
 		violation := "SECURITY POLICY TRIGGERED"
 
 		// Mark rejected
@@ -1154,9 +1168,10 @@ func (s *CommandService) RunCommand(
 		// Keep track of our rejections (Audit everything. Track everything.)
 		// We may also keep security violations in a separate text log
 		s.Store.Update(ctx, cmd)
-		//PrintFailure(cmd.Name)
-		//PrintFailure(string(StatusRejected))
 		PrintFailure(violation)
+		//go ioHelper.FileDump(cmd, "security.log")
+		//get weird results when trying to write to console and log file at same time
+		//probably some stdout concurrency thing I'm not aware of (2/17, TODO)
 		return errors.New(string(StatusRejected))
 	}
 
@@ -1214,7 +1229,7 @@ func NewCommandRunner(runnerType uint) CommandRunner {
 			return &UDPCommandRunner{}
 		}
 	*/
-	log.Printf("<Remove in Test>::Default Runner Selected: %v", runnerType)
+	log.Printf("\n::Console Runner Selected (default): %v", runnerType)
 	return &ConsoleCommandRunner{}
 }
 

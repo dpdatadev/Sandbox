@@ -14,8 +14,10 @@ const (
 	LOCAL_SQLITE_CMD_DB1   = "testcmd1"
 	LOCAL_SQLITE_CMD_DB2   = "testcmd2"
 	LOCAL_SQLITE_CMD_DB3   = "testcmd3"
+	LOCAL_SQLITE_CMD_DB4   = "testcmd4"
+	LOCAL_SQLITE_CMD_DB5   = "testcmd5"
 	LOCAL_SQLITE_CMD_TABLE = `CREATE TABLE IF NOT EXISTS commands (
-    id	 		  PRIMARY KEY AUTOINCREMENT
+    id	 		  INTEGER PRIMARY KEY AUTOINCREMENT,
 	uuid          TEXT,
     name          TEXT NOT NULL,
     status        TEXT NOT NULL,
@@ -28,6 +30,8 @@ const (
 );`
 )
 
+//create indexes(?)
+
 func setupTestDatabase(databaseName string, tableSql string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName))
 	if err != nil {
@@ -37,7 +41,8 @@ func setupTestDatabase(databaseName string, tableSql string) (*sql.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Table 'dispatch_log' created successfully")
+	log.Printf("New table on %s created successfully", databaseName)
+	PrintDebug("SQL EXECUTED on %s:::\n%s:::", databaseName, tableSql)
 	return db, err //defer close!
 }
 
@@ -53,17 +58,11 @@ func setupLocalInMemoryCommandService() *CommandService {
 	return svc
 }
 
-func setupLocalSqliteCommandService(databaseName string, tableSQL string) *CommandService {
+func setupLocalSqliteCommandService(database *sql.DB) *CommandService {
 
-	testDb, err := setupTestDatabase(databaseName, tableSQL)
+	//defer testDb.Close()
 
-	if err != nil {
-		panic("TEST DATABASE FAILED")
-	}
-
-	defer testDb.Close()
-
-	store := NewSqliteCommandStore(testDb)
+	store := NewSqliteCommandStore(database)
 
 	exec := NewLocalExecutor()
 
@@ -122,23 +121,20 @@ func ConsoleInMemoryCommandTest() {
 	}
 }
 
-// Testing
-func main() {
-	fmt.Printf("%s\n", debug.Stack())
-	log.SetPrefix("::TEST::")
-	log.SetFlags(0)
-	log.Print("main()::")
-	fmt.Println("TESTRUNNER::<INIT>::")
-	ConsoleInMemoryCommandTest()
-	//ConsoleSqliteCommandTest()
-}
-
-func ConsoleSqliteCommandTest() {
+func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 	ctx, cancel := setupTimeoutContext()
 
 	defer cancel()
 
-	svc := setupLocalSqliteCommandService(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
+	testDb, err := setupTestDatabase(databaseName, tableSQL)
+
+	if err != nil {
+		log.Panicf("DB ERROR %v", err)
+	}
+
+	defer testDb.Close()
+
+	svc := setupLocalSqliteCommandService(testDb)
 
 	consoleCommandRunner, commands := setupConsoleCommandTestSuite()
 
@@ -149,6 +145,17 @@ func ConsoleSqliteCommandTest() {
 	for _, cmd := range testCommands {
 		ioHelper.ConsoleDump(cmd)
 	}
+}
+
+// Testing
+func main() {
+	fmt.Printf("%s\n", debug.Stack())
+	log.SetPrefix("::TEST::")
+	log.SetFlags(0)
+	log.Print("main()::")
+	fmt.Println("TESTRUNNER::<INIT>::")
+	//ConsoleInMemoryCommandTest()
+	ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
 }
 
 //Feb week 3
