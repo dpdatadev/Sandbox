@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"runtime/debug"
 	"slices"
 	"strings"
 	"sync"
@@ -20,6 +19,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
@@ -202,7 +202,6 @@ const (
 	StatusRejected CommandStatus = "REJECTED (SECURITY)"
 )
 
-// TODO
 const (
 	_ = iota
 	CommandType_NIL
@@ -370,12 +369,29 @@ var DefaultProtectedPaths = []string{
 	"/dev",
 }
 
+// TODO 2-17
+// Explore lineage/tracking (Linked List design)
+/*
+lineage tracking
+PrevID	Backtracking, failure tracing
+NextID	Forward traversal, replay
+ParentID	Branch lineage
+RootID	Workflow grouping
+*/
 type Command struct {
 	ID       uuid.UUID
 	Name     string
 	Category int
 	Args     []string
 	Notes    string
+
+	// Basic lineage
+	//PrevID *string
+	//NextID *string
+
+	// Optional richer lineage (NOT AVAILABLE yet)
+	//ParentID *string // spawned from
+	//RootID   *string // workflow root
 
 	Stdout   string
 	Stderr   string
@@ -550,6 +566,205 @@ func (s *SQLiteCommandStore) GetAll(
 	}
 
 	return commands, nil
+}
+
+func (s *SQLiteCommandStore) GetByID(
+	ctx context.Context,
+	uuid uuid.UUID,
+) (*Command, error) {
+
+	query := `
+        SELECT
+            id,
+            name,
+            status,
+            created_at,
+            started_at,
+            finished_at,
+            stdout,
+            stderr,
+            exit_code,
+            metadata_json
+        FROM commands
+        WHERE id = ?
+        LIMIT 1
+    `
+	uuidString := uuid.String()
+	row := s.db.QueryRowContext(ctx, query, uuidString)
+
+	cmd := new(Command)
+
+	err := row.Scan(
+		&cmd.ID,
+		&cmd.Name,
+		&cmd.Status,
+		&cmd.CreatedAt,
+		&cmd.StartedAt,
+		&cmd.EndedAt,
+		&cmd.Stdout,
+		&cmd.Stderr,
+		&cmd.ExitCode,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf(
+				"command not found: %s",
+				uuidString,
+			)
+		}
+		return nil, err
+	}
+
+	return cmd, nil
+}
+
+func (s *SQLiteCommandStore) Update(
+	ctx context.Context,
+	cmd *Command,
+) error {
+
+	query := `
+        UPDATE commands
+        SET
+            name = ?,
+            status = ?,
+            started_at = ?,
+            finished_at = ?,
+            stdout = ?,
+            stderr = ?,
+            exit_code = ?,
+            metadata_json = ?
+        WHERE id = ?
+    `
+
+	result, err := s.db.ExecContext(
+		ctx,
+		query,
+		cmd.Name,
+		cmd.Status,
+		cmd.StartedAt,
+		cmd.EndedAt,
+		cmd.Stdout,
+		cmd.Stderr,
+		cmd.ExitCode,
+		cmd.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf(
+			"no command updated (id=%s)",
+			cmd.ID,
+		)
+	}
+
+	return nil
+}
+
+// TODO
+func (s *SQLiteCommandStore) SaveBatch(
+	ctx context.Context,
+	cmds []*Command,
+) error {
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, `
+        INSERT INTO commands (
+            id, name, status, created_at
+        )
+        VALUES (?, ?, ?, ?)
+    `)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	defer stmt.Close()
+
+	for _, cmd := range cmds {
+		_, err := stmt.ExecContext(
+			ctx,
+			cmd.ID,
+			cmd.Name,
+			cmd.Status,
+			cmd.CreatedAt,
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+func (s *SQLiteCommandStore) MarkStarted(
+	ctx context.Context,
+	id string,
+	startedAt time.Time,
+) error {
+
+	query := `
+        UPDATE commands
+        SET
+            status = 'RUNNING',
+            started_at = ?
+        WHERE id = ?
+    `
+
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		startedAt,
+		id,
+	)
+
+	return err
+}
+
+func (s *SQLiteCommandStore) MarkFinished(
+	ctx context.Context,
+	id string,
+	finishedAt time.Time,
+	exitCode int,
+	stdout string,
+	stderr string,
+) error {
+
+	query := `
+        UPDATE commands
+        SET
+            status = 'COMPLETED',
+            finished_at = ?,
+            exit_code = ?,
+            stdout = ?,
+            stderr = ?
+        WHERE id = ?
+    `
+
+	_, err := s.db.ExecContext(
+		ctx,
+		query,
+		finishedAt,
+		exitCode,
+		stdout,
+		stderr,
+		id,
+	)
+
+	return err
 }
 
 // TODO
@@ -740,7 +955,8 @@ func (s *InMemoryCommandStore) Update(
 //SQL Store Implementation (SQLITE default)
 /*
 CREATE TABLE IF NOT EXISTS commands (
-    id            TEXT PRIMARY KEY,
+    id	 		  PRIMARY KEY AUTOINCREMENT
+	uuid          TEXT,
     name          TEXT NOT NULL,
     status        TEXT NOT NULL,
     created_at    DATETIME NOT NULL,
@@ -748,8 +964,7 @@ CREATE TABLE IF NOT EXISTS commands (
     finished_at   DATETIME,
     stdout        TEXT,
     stderr        TEXT,
-    exit_code     INTEGER,
-    metadata_json TEXT
+    exit_code     INTEGER
 );
 
 CREATE INDEX idx_commands_created_at
@@ -1032,110 +1247,3 @@ func (ccr *ConsoleCommandRunner) RunCommands(
 }
 
 //End FRAMEWORK
-/*
-func GetAllTest() {
-
-	ioHelper := &IoHelper{}
-
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		10.*time.Second,
-	)
-
-	defer cancel()
-
-	store := NewSqlStore() // TODO
-
-	exec := NewLocalExecutor()
-
-	svc := NewCommandService(store, exec)
-
-	commandHistory, err := svc.CommandHistory(ctx, 0)
-	if err != nil {
-		PrintFailure("TEST FAIL")
-	}
-
-	if len(commandHistory) == 0 {
-		PrintFailure("CMD HISTORY NOT PERSISTED")
-	} else {
-
-		for i, cmd := range commandHistory {
-			ioHelper.ConsoleDump(cmd, fmt.Sprintf("%d_output.txt", i))
-		}
-	}
-}
-*/
-
-// Orchestrate sample commands with ConsoleRunner for Testing
-func ConsoleCommandTest() {
-	// Users are responsible for passing a context, which can have different configurations
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		10*time.Second,
-	)
-
-	defer cancel()
-
-	store := NewInMemoryStore()
-	//store := NewSqliteStore()
-	exec := NewLocalExecutor()
-	//store := NewSSHStore()
-
-	//Here we will use the default(Memory Store, Local Execution)
-	svc := NewCommandService(store, exec)
-
-	// I could just as well call NewCommandService to return a RemoteSSH executor to download logs into a SQLITE Store
-	//svc := NewCommandService(sqlStore, sshExec)
-
-	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
-
-	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config") // TODO, deal with default no args
-
-	cmd1 := NewCommand("ip", []string{"neighbor"}, "Get IP Neighbor Output")
-
-	cmd2 := NewCommand("free", []string{"-g", "-h"}, "Get Active Memory Usage")
-
-	cmd3 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
-
-	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND")
-
-	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4}
-
-	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
-
-	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
-
-	ioHelper := &IoHelper{}
-
-	for _, cmd := range testCommands {
-		ioHelper.ConsoleDump(cmd)
-	}
-}
-
-// Testing
-func main() {
-	fmt.Printf("%s\n", debug.Stack())
-	log.SetPrefix("::Testing::")
-	log.SetFlags(0)
-	log.Print("main()::")
-	fmt.Println("Testing Commander")
-	ConsoleCommandTest()
-}
-
-//Feb week 3
-//SQLITE impl
-//Default args
-//Client code with baseline v0 API
-//Simple http/net or udp exposure
-
-// TODO - phase 2:
-// Lineage/history
-// Piping multiple commands (still local)
-// Get out of dev zone and create actual package structure
-
-// TODO - phase 3:
-// Working with HTTP(S)
-// Working with SSH
-// Test Scrubers/Security
-// Metadata/Analysis/Examples
-// LAUNCH

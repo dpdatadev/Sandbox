@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -9,8 +8,6 @@ import (
 	"os/exec"
 	"runtime"
 	"runtime/debug"
-	"sync"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -72,6 +69,7 @@ func CommandTest() (string, error) {
 	return output, nil
 }
 
+/*
 func CommandTestRunner(
 	svc *CommandService,
 	ctx context.Context,
@@ -99,6 +97,7 @@ func CommandTestRunner(
 	wg.Wait()
 	return finished
 }
+
 
 func CommandSystemTest() {
 	ctx, cancel := context.WithTimeout(
@@ -132,7 +131,7 @@ func CommandSystemTest() {
 		fmt.Println("Stdout:", cmd.Stdout)
 	}
 }
-
+*/
 // ////////////////////////////////
 // Create actual unit tests .. TODO
 func main() {
@@ -180,7 +179,7 @@ func main() {
 
 	//commandTest, _ := CommandTest()
 
-	CommandSystemTest()
+	//CommandSystemTest()
 	log.Println("::HTTP SERVICE START -- UP -- ::")
 	//printAlloc()
 	//runtime.GC()
