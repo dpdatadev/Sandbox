@@ -32,7 +32,8 @@ const (
 
 //create indexes(?)
 
-func setupTestDatabase(databaseName string, tableSql string) (*sql.DB, error) {
+func setupTestDatabase(databaseName string, tableSql string /*,overwrite bool*/) (*sql.DB, error) {
+	//check if file already exists on file system - if so delete if flag is set
 	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName))
 	if err != nil {
 		log.Fatal(err)
@@ -78,13 +79,20 @@ func setupTimeoutContext() (context.Context, context.CancelFunc) {
 	)
 }
 
+// TODO
+type TestCommand struct {
+	Name        string
+	Args        []string
+	Description string
+}
+
 func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 	// I could just as well call NewCommandService to return a RemoteSSH executor to download logs into a SQLITE Store
 	//svc := NewCommandService(sqlStore, sshExec)
 
 	hostInfo := NewCommand("uname", []string{"-a"}, "Local Host Info")
 
-	cmd := NewCommand("ifconfig", []string{""}, "Get Local NIC Config") // TODO, deal with default no args
+	cmd := NewCommand("ip", []string{"addr"}, "Get Local IP Config") // TODO, deal with default no args
 
 	cmd1 := NewCommand("ip", []string{"neighbor"}, "Get IP Neighbor Output")
 
@@ -92,7 +100,7 @@ func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 
 	cmd3 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
 
-	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND")
+	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND") //TEST SECURITY POLICY
 
 	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4}
 
@@ -148,7 +156,7 @@ func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 }
 
 // Testing
-func main() {
+func testMain() {
 	fmt.Printf("%s\n", debug.Stack())
 	log.SetPrefix("::TEST::")
 	log.SetFlags(0)
@@ -166,6 +174,7 @@ func main() {
 
 // TODO - phase 2:
 // Lineage/history
+//Add Priority Queue capability? (cmd 1, priority 1, cmd 2, priority -1, etc.,)
 // Piping multiple commands (still local)
 // Get out of dev zone and create actual package structure
 

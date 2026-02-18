@@ -1,12 +1,45 @@
 package main
 
-// Testing for lineage/tracker impl
+//BETA FEATURE
+
+// Lineage/tracker impl
 import (
 	"context"
 	"time"
 )
 
-type LCommand struct {
+//container List implementation for testing/debugging and InMemory stuff
+/*
+	https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
+	https://pkg.go.dev/container/list
+	for e := chain.Back(); e != nil; e = e.Prev() {
+    cmd := e.Value.(*Command)
+    fmt.Println(cmd.ID, cmd.Status)
+*/
+
+//Batch processing fits into this?
+/*
+type CommandBatch struct {
+	Commands   []*Command
+	BatchLabel string
+}
+*/
+
+//Deadline - version 1 BETA
+
+/*Lineage - History Tracking*/
+
+/*
+HTTPCommand → fetch JSON
+↓
+TransformCommand → jq parse
+↓
+DBCommand → insert rows
+↓
+FileCommand → archive CSV
+*/
+
+type LineageCommand struct {
 	ID string
 
 	// Execution lineage
@@ -22,9 +55,29 @@ type LCommand struct {
 	CreatedAt time.Time
 }
 
+/////////////////////////////////////////////////////////////
+
+//Direct pointer method - database fields in Command struct or separate struct/table
+/*
+func (s *CommandService) ChainCommands(
+	ctx context.Context,
+	cmds []*Command,
+) ([]*LineageCommand, error) {
+	if len(cmds) == 0 {
+		return nil, errors.New("NO COMMANDS GIVEN")
+	}
+
+	commandChain := make([]*LineageCommand, 0, len(cmds))
+
+	rootID := cmds[0].ID
+
+
+}
+*/
+
 func (s *CommandService) Chain(
 	ctx context.Context,
-	cmds []*LCommand,
+	cmds []*LineageCommand, //todo add history struct to keep separate table of tracking and we can join on uuid
 ) error {
 
 	if len(cmds) == 0 {
@@ -85,9 +138,8 @@ func (s *CommandService) WalkForward(
 
 	return lineage, nil
 }
-*/
 
-/*
+
 func (s *CommandService) WalkBackward(
     ctx context.Context,
     startID string,
