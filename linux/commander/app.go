@@ -5,12 +5,10 @@ import (
 	"log"
 )
 
-func boostrapApp() {
-	panic("not impl")
-}
-
-func retrieveCommands() *[]Command {
-	panic("not impl")
+func runTests() {
+	mainTestSuite()
+	//singleListTest()
+	//lineageTest()
 }
 
 func main() {
@@ -18,5 +16,5 @@ func main() {
 	log.SetFlags(0)
 	log.Print("main()::")
 	fmt.Println("DPDIGITAL,LLC::COMMANDER::<INIT>::")
-	boostrapApp()
+	runTests()
 }

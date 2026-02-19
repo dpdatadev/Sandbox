@@ -4,7 +4,11 @@ package main
 
 // Lineage/tracker impl
 import (
+	"container/list"
 	"context"
+	"errors"
+	"fmt"
+	"os"
 	"time"
 )
 
@@ -39,44 +43,233 @@ DBCommand → insert rows
 FileCommand → archive CSV
 */
 
+// Several ways to implement Chain tracking/lineage - DB persistence likely desired
+func (s *SQLiteCommandStore) SaveBatchHistory(
+	ctx context.Context,
+	cmds []*Command,
+) error {
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, `
+        INSERT INTO commands (
+            id, name, status, created_at
+        )
+        VALUES (?, ?, ?, ?)
+    `)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	defer stmt.Close()
+
+	for _, cmd := range cmds {
+		_, err := stmt.ExecContext(
+			ctx,
+			cmd.ID,
+			cmd.Name,
+			cmd.Status,
+			cmd.CreatedAt,
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+// Double llist impl w container/list
+func DoubleListTest() {
+	// Create a new list and put some numbers in it.
+	l := list.New()
+	cmd := NewCommand("ip", []string{"neighbor"}, "test")
+	cmd1 := NewCommand("ip", []string{"addr"}, "test")
+
+	l.PushFront(cmd)
+	l.PushBack(cmd1)
+
+	PrintDebug("List length: %d\n", l.Len())
+
+	// Iterate through list and print its contents.
+	for e := l.Front(); e != nil; e = e.Next() {
+		PrintDebug("Element: %v\n", e.Value)
+	}
+}
+
+// //////////////////////////////////
+type SingleList[T any] interface {
+	Values() []T
+	Len() int
+	Head() (*SList[T], error)
+	Tail() (*SList[T], error)
+	Append(value *T) (int, error)
+	ForwardNode() *SList[T]
+	ForwardValue() *T
+	Print()
+}
+
+// Simple Single List
+// When Double list is needed - use Golang container/list
+type SList[T any] struct {
+	Value T
+	Next  *SList[T]
+}
+
+func (sl *SList[T]) Append(value *T) (int, error) {
+	if sl == nil {
+		return 0, fmt.Errorf("list is nil")
+	}
+
+	current := sl
+	index := 0
+
+	for current.Next != nil {
+		current = current.Next
+		index++
+	}
+
+	current.Next = &SList[T]{Value: *value}
+	return index + 1, nil
+}
+
+func (sl *SList[T]) Head() (*SList[T], error) {
+
+	if sl != nil {
+		return sl, nil
+	}
+
+	return nil, errors.New("list is empty")
+}
+
+func (sl *SList[T]) Tail() (*SList[T], error) {
+
+	if sl == nil {
+		return nil, errors.New("list is empty")
+	}
+
+	current := sl
+	for current.Next != nil {
+		current = current.Next
+	}
+
+	return current, nil
+}
+
+func (sl *SList[T]) ForwardValue() *T {
+	if sl == nil || sl.Next == nil {
+		return nil
+	}
+	return &sl.Next.Value
+}
+
+func (sl *SList[T]) ForwardNode() *SList[T] {
+	if sl == nil {
+		return nil
+	}
+	return sl.Next
+}
+
+func (sl *SList[T]) Values() []T {
+	var values []T
+	for current := sl; current != nil; current = current.Next {
+		values = append(values, current.Value)
+	}
+	return values
+}
+
+// O(n) complexity - store length for O(1)
+func (sl *SList[T]) Len() int {
+	count := 0
+	for current := sl; current != nil; current = current.Next {
+		count++
+	}
+	return count
+}
+
+func (sl *SList[T]) Print() {
+
+	if sl == nil {
+		panic("init error")
+	}
+
+	counter := 1
+	for sl != nil {
+		counter++
+		PrintSuccess("Index: %d :: Value: %v\n", counter, sl.Value)
+		sl = sl.Next
+	}
+}
+
+type Lineage interface {
+	BeginChain() []*LineageCommand          //Step 1 - (Hydrate) - create LineageCommand objects from Command objects (copying relevant fields and adding lineage metadata)
+	LinkChain(cmds []*LineageCommand) error //Step 2 - (Chain together) - assign PrevID, NextID, RootID to LineageCommand objects to create a linked tracking chain
+	//Persist(ctx context.Context, cmds []*LineageCommand) error //Step 3 - save lineage tracking objects to database (or other store) for queryable lineage history
+	//WalkForward(ctx context.Context, startID string) ([]*Command, error)
+	//WalkBackward(ctx context.Context, startID string) ([]*Command, error)
+}
+
+type HistoryService struct {
+	AuditCommands []*Command
+}
+type DBHistoryService struct {
+	History HistoryService
+	Store   CommandStore
+}
+
 type LineageCommand struct {
-	ID string
+	ID      string
+	BatchID string
 
 	// Execution lineage
 	PrevID *string
 	NextID *string
 
 	// Optional richer lineage
-	ParentID *string // spawned from
-	RootID   *string // workflow root
+	//ParentID string  // spawned from (copied from Command object in Lineage creation via HydrateLineage())
+	RootID *string // workflow root (&referenced from first LineageCommand in ChainLineage())
 
 	Status    string
 	Stdout    string
 	CreatedAt time.Time
 }
 
-/////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////
+// TODO - improve https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
+func (hs *HistoryService) BeginChain() []*LineageCommand {
 
-//Direct pointer method - database fields in Command struct or separate struct/table
-/*
-func (s *CommandService) ChainCommands(
-	ctx context.Context,
-	cmds []*Command,
-) ([]*LineageCommand, error) {
-	if len(cmds) == 0 {
-		return nil, errors.New("NO COMMANDS GIVEN")
+	lineageObjects := make([]*LineageCommand, 0, len(hs.AuditCommands))
+	ioHelper := &IoHelper{}
+
+	batch_prefix := "batch__%s"
+	var batchSuffix string
+
+	shortUuid, err := ioHelper.NewShortUUID()
+	if err == nil {
+		batchSuffix = shortUuid
+	} else {
+		PrintStdErr("UUID function fail: %v", err)
+		batchSuffix = fmt.Sprintf("%d", time.Now().UnixNano())
 	}
 
-	commandChain := make([]*LineageCommand, 0, len(cmds))
+	for _, cmd := range hs.AuditCommands {
 
-	rootID := cmds[0].ID
-
-
+		lineageObject := new(LineageCommand)
+		lineageObject.ID = cmd.ID.String()
+		lineageObject.BatchID = fmt.Sprintf(batch_prefix, batchSuffix)
+		lineageObject.Status = cmd.Status
+		lineageObject.CreatedAt = time.Now()
+		lineageObject.Stdout = cmd.Stdout
+		lineageObjects = append(lineageObjects, lineageObject)
+	}
+	return lineageObjects
 }
-*/
 
-func (s *CommandService) Chain(
-	ctx context.Context,
+func (hs *HistoryService) LinkChain(
 	cmds []*LineageCommand, //todo add history struct to keep separate table of tracking and we can join on uuid
 ) error {
 
@@ -87,7 +280,6 @@ func (s *CommandService) Chain(
 	rootID := cmds[0].ID
 
 	for i := range cmds {
-
 		// Root assignment
 		cmds[i].RootID = &rootID
 
@@ -100,20 +292,33 @@ func (s *CommandService) Chain(
 			next := cmds[i+1].ID
 			cmds[i].NextID = &next
 		}
-
-		/*
-			err := s.Store.Create(ctx, cmds[i])
-			if err != nil {
-				return err
-			}
-		*/
 	}
 
 	return nil
 }
 
+// Write lineage graph to file
+func WriteLineageToFile(lineage []*LineageCommand, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	for _, cmd := range lineage {
+		line := fmt.Sprintf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, RootID: %v\n",
+			cmd.ID, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.RootID)
+		_, err := f.WriteString(line)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//Database lineage will come
 /*
-func (s *CommandService) WalkForward(
+func (dbs *DBHistoryService) WalkForward(
 	ctx context.Context,
 	startID string,
 ) ([]*Command, error) {
@@ -122,7 +327,7 @@ func (s *CommandService) WalkForward(
 	currentID := startID
 
 	for {
-		cmd, err := s.Store.GetByID(ctx, currentID)
+		cmd, err := dbs.Store.GetByID(ctx, currentID)
 		if err != nil {
 			return nil, err
 		}
@@ -140,7 +345,7 @@ func (s *CommandService) WalkForward(
 }
 
 
-func (s *CommandService) WalkBackward(
+func (dbs *DBHistoryService) WalkBackward(
     ctx context.Context,
     startID string,
 ) ([]*Command, error) {
@@ -149,7 +354,7 @@ func (s *CommandService) WalkBackward(
     currentID := startID
 
     for {
-        cmd, err := s.Store.GetByID(ctx, currentID)
+        cmd, err := dbs.Store.GetByID(ctx, currentID)
         if err != nil {
             return nil, err
         }

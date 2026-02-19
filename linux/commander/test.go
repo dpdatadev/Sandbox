@@ -7,7 +7,11 @@ import (
 	"log"
 	"runtime/debug"
 	"time"
+
+	"github.com/google/uuid"
 )
+
+//TODO, use actual unit testing, bdd, mocks, etc.,
 
 // TESTING
 const (
@@ -96,13 +100,17 @@ func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 
 	cmd1 := NewCommand("ip", []string{"neighbor"}, "Get IP Neighbor Output")
 
-	cmd2 := NewCommand("free", []string{"-g", "-h"}, "Get Active Memory Usage")
+	cmd2 := NewCommand("ifconfig", []string{}, "Get another local IP config output")
 
-	cmd3 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
+	cmd3 := NewCommand("ifconfig", []string{""}, "Intentionally fail") //TEST BAD ARGS
 
-	cmd4 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND") //TEST SECURITY POLICY
+	cmd4 := NewCommand("free", []string{"-g", "-h"}, "Get Active Memory Usage")
 
-	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4}
+	cmd5 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
+
+	cmd6 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND") //TEST SECURITY POLICY
+
+	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4, cmd5, cmd6}
 
 	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
 
@@ -155,8 +163,53 @@ func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 	}
 }
 
+func singleListTest() {
+	s := new(SList[Command])
+	s.Value = Command{ID: uuid.New(), Args: []string{}, Notes: "test!"}
+
+	cmd := NewCommand("ip", []string{"neighbor"}, "test")
+	cmd1 := NewCommand("ip", []string{"addr"}, "test")
+
+	s.Append(cmd)
+	s.Append(cmd1)
+
+	PrintDebug("Current Command: %s\n", s.Values()[0].Name)
+	PrintDebug("Next Command: %s\n", s.ForwardNode().Value.Name)
+
+	PrintDebug("SList length: %d\n", s.Len())
+	PrintDebug("SList values: %v\n", s.Values())
+
+	s.Print()
+
+}
+
+func lineageTest() {
+	hs := &HistoryService{
+		AuditCommands: []*Command{
+			NewCommand("echo", []string{"hello"}, "test"),
+			NewCommand("ls", []string{"-la"}, "test"),
+			NewCommand("date", []string{}, "test"),
+		},
+	}
+
+	lineageObjects := hs.BeginChain()
+	err := hs.LinkChain(lineageObjects)
+
+	if err != nil {
+		PrintStdErr("Error linking lineage: %v", err)
+		return
+	}
+
+	for _, obj := range lineageObjects {
+		fmt.Printf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, RootID: %v\n",
+			obj.ID, obj.BatchID, obj.PrevID, obj.NextID, obj.RootID)
+	}
+
+	WriteLineageToFile(lineageObjects, "chain.txt")
+}
+
 // Testing
-func testMain() {
+func mainTestSuite() {
 	fmt.Printf("%s\n", debug.Stack())
 	log.SetPrefix("::TEST::")
 	log.SetFlags(0)

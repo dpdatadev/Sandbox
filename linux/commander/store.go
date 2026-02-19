@@ -1,5 +1,9 @@
 package main
 
+//BETA FEATURE
+
+//todo - split into separate files
+
 import (
 	"context"
 	"database/sql"
