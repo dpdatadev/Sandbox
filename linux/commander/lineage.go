@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -242,30 +243,40 @@ type LineageCommand struct {
 // TODO - improve https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
 func (hs *HistoryService) BeginChain() []*LineageCommand {
 
-	lineageObjects := make([]*LineageCommand, 0, len(hs.AuditCommands))
-	ioHelper := &IoHelper{}
+	if len(hs.AuditCommands) == 0 {
+		return nil
+	}
 
-	batch_prefix := "batch__%s"
+	lineageObjects := make([]*LineageCommand, 0, len(hs.AuditCommands))
+
+	var ioHelper IoHelper
+
+	shortUUID, err := ioHelper.NewShortUUID()
 	var batchSuffix string
 
-	shortUuid, err := ioHelper.NewShortUUID()
-	if err == nil {
-		batchSuffix = shortUuid
-	} else {
+	if err != nil {
 		PrintStdErr("UUID function fail: %v", err)
-		batchSuffix = fmt.Sprintf("%d", time.Now().UnixNano())
+		batchSuffix = strconv.FormatInt(time.Now().UnixNano(), 10)
+	} else {
+		batchSuffix = shortUUID
 	}
+
+	batchID := fmt.Sprintf("batch__%s", batchSuffix)
+	now := time.Now()
 
 	for _, cmd := range hs.AuditCommands {
 
-		lineageObject := new(LineageCommand)
-		lineageObject.ID = cmd.ID.String()
-		lineageObject.BatchID = fmt.Sprintf(batch_prefix, batchSuffix)
-		lineageObject.Status = cmd.Status
-		lineageObject.CreatedAt = time.Now()
-		lineageObject.Stdout = cmd.Stdout
+		lineageObject := &LineageCommand{
+			ID:        cmd.ID.String(),
+			BatchID:   batchID,
+			Status:    cmd.Status,
+			Stdout:    cmd.Stdout,
+			CreatedAt: now, // or cmd.CreatedAt
+		}
+
 		lineageObjects = append(lineageObjects, lineageObject)
 	}
+
 	return lineageObjects
 }
 
