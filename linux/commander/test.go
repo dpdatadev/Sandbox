@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"runtime/debug"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,6 +48,14 @@ func setupTestDatabase(databaseName string, tableSql string /*,overwrite bool*/)
 	log.Printf("New table on %s created successfully", databaseName)
 	PrintDebug("SQL EXECUTED on %s:::\n%s:::", databaseName, tableSql)
 	return db, err //defer close!
+}
+
+func getTestDataBase(databaseName string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return db, err
 }
 
 func setupLocalInMemoryCommandService() *CommandService {
@@ -163,6 +170,50 @@ func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 	}
 }
 
+func testGetAllCommands() {
+	db, err := sql.Open("sqlite3", "testcmd1.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	s := NewSqliteCommandStore(db)
+	ctx, cancel := setupTimeoutContext()
+	defer cancel()
+
+	cmds, err := s.GetAll(ctx)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, cmd := range cmds {
+		PrintDebug(fmt.Sprintf("Command: %s, Status: %s\n", cmd.Name, cmd.Status))
+	}
+}
+
+func testGetRecentCommands() {
+	db, err := sql.Open("sqlite3", "testcmd1.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	s := NewSqliteCommandStore(db)
+	ctx, cancel := setupTimeoutContext()
+	defer cancel()
+
+	cmds, err := s.GetRecent(ctx, 5)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, cmd := range cmds {
+		PrintDebug(fmt.Sprintf("Command: %s, Status: %s\n", cmd.Name, cmd.Status))
+	}
+}
+
 func singleListTest() {
 	s := new(SList[Command])
 	s.Value = Command{ID: uuid.New(), Args: []string{}, Notes: "test!"}
@@ -184,16 +235,25 @@ func singleListTest() {
 }
 
 func lineageTest() {
+
+	ctx, cancel := setupTimeoutContext()
+	defer cancel()
+
+	testDb, _ := getTestDataBase(LOCAL_SQLITE_CMD_DB1)
+
+	store := NewSqliteCommandStore(testDb)
+
+	recentCommands, err := store.GetRecent(ctx, 5)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	hs := &HistoryService{
-		AuditCommands: []*Command{
-			NewCommand("echo", []string{"hello"}, "test"),
-			NewCommand("ls", []string{"-la"}, "test"),
-			NewCommand("date", []string{}, "test"),
-		},
+		AuditCommands: recentCommands,
 	}
 
 	lineageObjects := hs.BeginChain()
-	err := hs.LinkChain(lineageObjects)
+	err = hs.LinkChain(lineageObjects)
 
 	if err != nil {
 		PrintStdErr("Error linking lineage: %v", err)
@@ -201,39 +261,40 @@ func lineageTest() {
 	}
 
 	for _, obj := range lineageObjects {
-		fmt.Printf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, RootID: %v\n",
-			obj.ID, obj.BatchID, obj.PrevID, obj.NextID, obj.RootID)
+		fmt.Printf("ID: %s, BatchID: %s, PrevID: %v, Status: %s, NextID: %v, RootID: %v\n",
+			obj.ID, obj.BatchID, obj.PrevID, obj.Status, obj.NextID, obj.RootID)
 	}
 
-	WriteLineageToFile(lineageObjects, "chain.txt")
+	WriteLineageToFile(lineageObjects, "chain_3.txt")
 }
 
 // Testing
 func mainTestSuite() {
-	fmt.Printf("%s\n", debug.Stack())
+	var ioHelper IoHelper
 	log.SetPrefix("::TEST::")
 	log.SetFlags(0)
 	log.Print("main()::")
-	fmt.Println("TESTRUNNER::<INIT>::")
+	ipInfo, _ := ioHelper.getHostIpConfig()
+	log.Println(ipInfo)
 	//ConsoleInMemoryCommandTest()
 	ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
 }
 
 //Feb week 3
-//SQLITE impl
-//Default args
+//SQLITE impl (complete)
+//Default args (complete)
 //Client code with baseline v0 API
 //Simple http/net or udp exposure
 
 // TODO - phase 2:
-// Lineage/history
+// Lineage/history (alpha complete)
 //Add Priority Queue capability? (cmd 1, priority 1, cmd 2, priority -1, etc.,)
 // Piping multiple commands (still local)
-// Get out of dev zone and create actual package structure
+// Get out of dev zone and create actual package structure (started in alpha..)
 
 // TODO - phase 3:
 // Working with HTTP(S)
 // Working with SSH
-// Test Scrubers/Security
+// Test Scrubers/Security (complete for alpha, but needs more work)
 // Metadata/Analysis/Examples
 // LAUNCH

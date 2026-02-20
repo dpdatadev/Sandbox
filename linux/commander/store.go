@@ -292,7 +292,6 @@ func (s *SQLiteCommandStore) MarkFinished(
 	return err
 }
 
-// TODO
 func (s *SQLiteCommandStore) GetRecent(
 	ctx context.Context,
 	limit uint,

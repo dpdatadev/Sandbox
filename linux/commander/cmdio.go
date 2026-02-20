@@ -23,27 +23,48 @@ var (
 
 type IoHelper struct{}
 
-func (io *IoHelper) showHostIpConfig() {
+func (io *IoHelper) getHostIpConfig() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	var ipAddrStr string
+
+	var IPV4or6 string
+	var IPError error
+
 	for _, addr := range addrs {
-		// Check the address type and if it is not a loopback
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				PrintDebug("IPv4 Address: %s\n", ipnet.IP.String())
-			} else if ipnet.IP.To16() != nil {
-				PrintDebug("IPv6 Address: %s\n", ipnet.IP.String())
+		// Check the address type
+		if ipnet, ok := addr.(*net.IPNet); ok {
+			// See if it's a valid IPV4 loopback
+			/*if ipnet.IP.To4() != nil && ipnet.IP.IsLoopback() {
+				IPV4or6 = ipnet.IP.String()
+				IPError = nil
+				ipAddrStr = fmt.Sprintf("Loopback: %s\n", IPV4or6)
+			}*/
+			// Check if IPV4 or IPV6 and assign to builder
+			if ipnet.IP.To4() != nil && !ipnet.IP.IsLoopback() {
+				IPV4or6 = ipnet.IP.String()
+				IPError = nil
+				ipAddrStr = fmt.Sprintf("Host IPv4 Address: %s\n", IPV4or6)
+			} else if ipnet.IP.To16() != nil && !ipnet.IP.IsLoopback() {
+				IPV4or6 = ipnet.IP.String()
+				IPError = nil
+				ipAddrStr = fmt.Sprintf("Host IPv6 Address: %s\n", IPV4or6)
 			}
+
+		} else { // Finally, no valid addresses and/or something is !ok
+			IPError = errors.New("ERR - IP RETRIEVAL")
+			return string(""), IPError
 		}
 	}
+	return ipAddrStr, IPError
 }
 
 func (io *IoHelper) printHeap() {
 	m := &runtime.MemStats{}
-	go runtime.ReadMemStats(m)
+	runtime.ReadMemStats(m)
 	PrintDebug("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
 }
 

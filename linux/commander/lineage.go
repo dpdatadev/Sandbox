@@ -161,6 +161,7 @@ func (sl *SList[T]) Tail() (*SList[T], error) {
 	return current, nil
 }
 
+// Probably redundant
 func (sl *SList[T]) ForwardValue() *T {
 	if sl == nil || sl.Next == nil {
 		return nil
@@ -227,12 +228,12 @@ type LineageCommand struct {
 	BatchID string
 
 	// Execution lineage
-	PrevID *string
-	NextID *string
+	PrevID string
+	NextID string
 
 	// Optional richer lineage
 	//ParentID string  // spawned from (copied from Command object in Lineage creation via HydrateLineage())
-	RootID *string // workflow root (&referenced from first LineageCommand in ChainLineage())
+	RootID string // workflow root (&referenced from first LineageCommand in ChainLineage())
 
 	Status    string
 	Stdout    string
@@ -292,16 +293,16 @@ func (hs *HistoryService) LinkChain(
 
 	for i := range cmds {
 		// Root assignment
-		cmds[i].RootID = &rootID
+		cmds[i].RootID = rootID //&
 
 		if i > 0 {
 			prev := cmds[i-1].ID
-			cmds[i].PrevID = &prev
+			cmds[i].PrevID = prev //&
 		}
 
 		if i < len(cmds)-1 {
 			next := cmds[i+1].ID
-			cmds[i].NextID = &next
+			cmds[i].NextID = next //&
 		}
 	}
 
@@ -317,8 +318,8 @@ func WriteLineageToFile(lineage []*LineageCommand, filename string) error {
 	defer f.Close()
 
 	for _, cmd := range lineage {
-		line := fmt.Sprintf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, RootID: %v\n",
-			cmd.ID, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.RootID)
+		line := fmt.Sprintf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, Status: %s, RootID: %v\n",
+			cmd.ID, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.Status, cmd.RootID)
 		_, err := f.WriteString(line)
 		if err != nil {
 			return err
@@ -326,6 +327,8 @@ func WriteLineageToFile(lineage []*LineageCommand, filename string) error {
 	}
 	return nil
 }
+
+//TODO - implement DB persistence for lineage tracking objects (could be a separate table with foreign key to Commands or a JSON blob in Commands table)
 
 //Database lineage will come
 /*

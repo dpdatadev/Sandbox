@@ -76,7 +76,7 @@ func (s *CommandService) RunCommand(
 		// We may also keep security violations in a separate text log
 		s.Store.Update(ctx, cmd)
 		PrintFailure(violation)
-		//go ioHelper.FileDump(cmd, "security.log")
+		//ioHelper.FileDump(cmd, "security.log")
 		//get weird results when trying to write to console and log file at same time
 		//probably some stdout concurrency thing I'm not aware of (2/17, TODO)
 		return errors.New(string(StatusRejected))
