@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
-	"runtime"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
@@ -21,9 +21,54 @@ var (
 	PrintDebug    = color.New(color.Bold, color.FgBlue, color.Italic).PrintfFunc()
 )
 
-type IoHelper struct{}
+type CmdIOHelper struct{}
 
-func (io *IoHelper) getHostIpConfig() (string, error) {
+func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
+
+	PrintDebug("COMMAND READ[+]: %s\n", fileName)
+
+	//Check file extension (replace with YAML in BETA)
+	if !strings.HasSuffix("proc.txt", ".txt") {
+		PrintFailure("Invalid file type: %s\n", "proc.txt")
+		log.Println("Only .TXT files supported at this time for parsing (alpha v0.1)")
+		return []*Command{}
+	}
+
+	//file, err := os.Open(fileName)
+	file := io.GetFile(fileName) //test this
+	//Handle file open
+	if file == nil {
+		PrintFailure("Error opening file: %v\n", errors.New("file is nil"))
+		return []*Command{}
+	}
+
+	defer file.Close()
+
+	// Process the file
+	buf := make([]byte, 1024)
+	n, err := file.Read(buf)
+	if err != nil {
+		PrintFailure("Error reading file: %v\n", err)
+		return []*Command{}
+	}
+	commandData := string(buf[:n])
+	commands := make([]*Command, 0, len(commandData))
+	commandLines := strings.SplitSeq(commandData, "\n")
+	for cmd := range commandLines {
+		cmdFields := strings.Fields(cmd)
+		cmdName := cmdFields[0]
+		cmdArgs := cmdFields[1:]
+		cmdNotes := fmt.Sprintf("Ingested from %s", fileName)
+		command := NewCommand(cmdName, cmdArgs, cmdNotes)
+		commands = append(commands, command)
+		PrintDebug("Ingested Command: %s, Args: %v\n", cmdName, cmdArgs)
+	}
+
+	return commands
+}
+
+// remove in beta
+func (io *CmdIOHelper) getHostIpConfig() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Fatal(err)
@@ -62,14 +107,8 @@ func (io *IoHelper) getHostIpConfig() (string, error) {
 	return ipAddrStr, IPError
 }
 
-func (io *IoHelper) printHeap() {
-	m := &runtime.MemStats{}
-	runtime.ReadMemStats(m)
-	PrintDebug("Allocated Heap: %v MB\n", m.Alloc/1024/1024)
-}
-
 // ANSI SQL LEFT style substring
-func (io *IoHelper) Left(s string, size int) (string, error) {
+func (io *CmdIOHelper) Left(s string, size int) (string, error) {
 
 	if s == "" {
 		return s, errors.New("EMPTY STRING")
@@ -81,7 +120,7 @@ func (io *IoHelper) Left(s string, size int) (string, error) {
 }
 
 // ANSI SQL RIGHT style substring
-func (io *IoHelper) Right(s string, size int) (string, error) {
+func (io *CmdIOHelper) Right(s string, size int) (string, error) {
 	if s == "" {
 		return s, errors.New("EMPTY STRING")
 	}
@@ -92,7 +131,7 @@ func (io *IoHelper) Right(s string, size int) (string, error) {
 }
 
 // Return files for Logging or dumping
-func (io *IoHelper) GetFile(fileName string) *os.File {
+func (io *CmdIOHelper) GetFile(fileName string) *os.File {
 	if fileName == "" {
 		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
 	}
@@ -105,8 +144,8 @@ func (io *IoHelper) GetFile(fileName string) *os.File {
 	return file
 }
 
-// Version 4 Google UUID (length 7) (UNSAFE, INTERNAL USE ONLY)
-func (io *IoHelper) NewShortUUID() (string, error) {
+// Version 4 Google UUID (length 7) (UNSAFE, INTERNAL USE ONLY (lineage/testing))
+func (io *CmdIOHelper) NewShortUUID() (string, error) {
 
 	uuidString, err := io.Left(uuid.NewString(), 8)
 
@@ -114,7 +153,7 @@ func (io *IoHelper) NewShortUUID() (string, error) {
 }
 
 // Helper function for displaying/dumping Command info (default Console/Text/Printf())
-func (io *IoHelper) ConsoleDump(cmd *Command) {
+func (io *CmdIOHelper) ConsoleDump(cmd *Command) {
 	if cmd.Stderr != "" || cmd.Status == "FAILED" {
 		PrintFailure("Command ID: %v\n", cmd.ID)
 		PrintFailure("Command Name: %s\n", cmd.Name)
@@ -135,7 +174,7 @@ func (io *IoHelper) ConsoleDump(cmd *Command) {
 	}
 }
 
-func (io *IoHelper) FileDump(cmd *Command, logFile string) {
+func (io *CmdIOHelper) FileDump(cmd *Command, logFile string) {
 
 	log.SetOutput(io.GetFile(logFile))
 

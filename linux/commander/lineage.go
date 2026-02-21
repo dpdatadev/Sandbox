@@ -184,7 +184,7 @@ func (sl *SList[T]) Values() []T {
 	return values
 }
 
-// O(n) complexity - store length for O(1)
+// O(n) complexity - TODO store length for O(1)
 func (sl *SList[T]) Len() int {
 	count := 0
 	for current := sl; current != nil; current = current.Next {
@@ -208,9 +208,9 @@ func (sl *SList[T]) Print() {
 }
 
 type Lineage interface {
-	BeginChain() []*LineageCommand          //Step 1 - (Hydrate) - create LineageCommand objects from Command objects (copying relevant fields and adding lineage metadata)
-	LinkChain(cmds []*LineageCommand) error //Step 2 - (Chain together) - assign PrevID, NextID, RootID to LineageCommand objects to create a linked tracking chain
-	//Persist(ctx context.Context, cmds []*LineageCommand) error //Step 3 - save lineage tracking objects to database (or other store) for queryable lineage history
+	BeginChain() []*CommandLineage          //Step 1 - (Hydrate) - create CommandLineage objects from Command objects (copying relevant fields and adding lineage metadata)
+	LinkChain(cmds []*CommandLineage) error //Step 2 - (Chain together) - assign PrevID, NextID, RootID to CommandLineage objects to create a linked tracking chain
+	//Persist(ctx context.Context, cmds []*CommandLineage) error //Step 3 - save lineage tracking objects to database (or other store) for queryable lineage history
 	//WalkForward(ctx context.Context, startID string) ([]*Command, error)
 	//WalkBackward(ctx context.Context, startID string) ([]*Command, error)
 }
@@ -223,17 +223,20 @@ type DBHistoryService struct {
 	Store   CommandStore
 }
 
-type LineageCommand struct {
+// TODO, beta thoughts (think on this) -- I think the second struct needs to be removed and keep PrevID and NextID on Command
+// Then any Command can easily be checked for lineage then move forward or backward instead of
+// checking a different table/output.
+type CommandLineage struct {
 	ID      string
 	BatchID string
 
 	// Execution lineage
-	PrevID string
-	NextID string
+	PrevID string //* want to see the actual string value stored, not the address/reference of the previous object in memory (which is what a pointer would give us)
+	NextID string //*
 
 	// Optional richer lineage
 	//ParentID string  // spawned from (copied from Command object in Lineage creation via HydrateLineage())
-	RootID string // workflow root (&referenced from first LineageCommand in ChainLineage())
+	RootID string //* workflow root (copied from first CommandLineage in ChainLineage())
 
 	Status    string
 	Stdout    string
@@ -242,17 +245,18 @@ type LineageCommand struct {
 
 // ///////////////////////////////////////////////////////////
 // TODO - improve https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
-func (hs *HistoryService) BeginChain() []*LineageCommand {
+func (hs *HistoryService) BeginChain() []*CommandLineage {
 
 	if len(hs.AuditCommands) == 0 {
 		return nil
 	}
 
-	lineageObjects := make([]*LineageCommand, 0, len(hs.AuditCommands))
+	lineageObjects := make([]*CommandLineage, 0, len(hs.AuditCommands))
 
-	var ioHelper IoHelper
+	var CmdIOHelper CmdIOHelper
 
-	shortUUID, err := ioHelper.NewShortUUID()
+	shortUUID, err := CmdIOHelper.NewShortUUID()
+
 	var batchSuffix string
 
 	if err != nil {
@@ -267,7 +271,7 @@ func (hs *HistoryService) BeginChain() []*LineageCommand {
 
 	for _, cmd := range hs.AuditCommands {
 
-		lineageObject := &LineageCommand{
+		lineageObject := &CommandLineage{
 			ID:        cmd.ID.String(),
 			BatchID:   batchID,
 			Status:    cmd.Status,
@@ -282,7 +286,7 @@ func (hs *HistoryService) BeginChain() []*LineageCommand {
 }
 
 func (hs *HistoryService) LinkChain(
-	cmds []*LineageCommand, //todo add history struct to keep separate table of tracking and we can join on uuid
+	cmds []*CommandLineage, //todo add history struct to keep separate table of tracking and we can join on uuid
 ) error {
 
 	if len(cmds) == 0 {
@@ -310,7 +314,7 @@ func (hs *HistoryService) LinkChain(
 }
 
 // Write lineage graph to file
-func WriteLineageToFile(lineage []*LineageCommand, filename string) error {
+func WriteLineageToFile(lineage []*CommandLineage, filename string) error {
 	f, err := os.Create(filename)
 	if err != nil {
 		return err

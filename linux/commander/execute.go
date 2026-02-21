@@ -39,9 +39,9 @@ func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFile st
 	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
 	// doesn't exist, and O_WRONLY opens the file in write-only mode.
 
-	ioHelper := &IoHelper{}
+	var CmdIOHelper CmdIOHelper
 
-	file := ioHelper.GetFile(logFile)
+	file := CmdIOHelper.GetFile(logFile)
 
 	// Ensure the file is closed when the main function exits.
 	defer file.Close()

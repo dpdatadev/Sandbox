@@ -1,0 +1,7 @@
+uname -a
+ip addr
+ip neighbor show
+ifconfig
+uptime
+nmap -sn 192.168.1.0/24
+arp -a

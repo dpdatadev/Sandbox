@@ -1,76 +1,33 @@
 package main
 
-//Studying interfaces and methods
-
 import (
 	"fmt"
+	"os"
+	"strings"
 )
 
-type Executor interface {
-	Exec() bool
-}
-
-type Runner struct {
-	id  int
-	cmd string
-}
-
-type SSHRunner struct {
-	Runner
-	AllowedHosts []string
-	RSAKeyPath   string
-	Audit        bool
-}
-
-type HTTPRunner struct {
-	Runner
-	MethodsAllowed []string
-	URL            string
-}
-
-func (r *Runner) Exec() bool {
-	fmt.Println("I fulfill the requirement")
-	fmt.Println(r.cmd)
-	return true
-}
-
-func AuditBeforeRun(e Executor) bool {
-	if ssh, ok := e.(*SSHRunner); ok {
-		fmt.Println("Auditing SSH CMD:")
-		fmt.Println(ssh.cmd)
-		ssh.Audit = true
-		return ssh.Exec()
-	}
-	return false
-}
-
-func RunExecutor(e Executor) bool {
-	if ssh, ok := e.(*SSHRunner); ok {
-		fmt.Printf("Command ID: %d must be audited first!\n", ssh.id)
-		return false
-	}
-
-	if http, ok := e.(*HTTPRunner); ok {
-		return http.Exec()
-	}
-
-	return false
-}
-
-func multiply(a1 int, a2 int) int {
-	return a1 * a2
-}
-
 func main() {
-	//b := [5]int{1, 2, 3, 4, 5}
-	//fmt.Printf("%d", multiply(b[(len(b)-1)], (1000/2)))
-	fmt.Println("::TESTING::")
-	sshRunner := new(SSHRunner)
-	sshRunner.id = 1
-	sshRunner.cmd = "echo"
+	fmt.Printf("Begin: %s\n", os.Args[0])
+	file, err := os.Open("proc.txt")
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
 
-	RunExecutor(sshRunner)
-	AuditBeforeRun(sshRunner)
+	// Process the file (for demonstration, we'll just read it)
+	buf := make([]byte, 1024)
+	n, err := file.Read(buf)
+	if err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		return
+	}
+	commands := strings.SplitSeq(string(buf[:n]), "\n")
+	for cmd := range commands {
+		cmds := strings.Fields(cmd)
+		cmdName := cmds[0]
+		cmdArgs := cmds[1:]
 
-	// TODO
+		fmt.Printf("Command: %s, Args: %v\n", cmdName, cmdArgs)
+	}
 }

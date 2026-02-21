@@ -24,7 +24,7 @@ func NewCommandService(
 	}
 }
 
-// TODO
+// TODO (remove?)
 func (s *CommandService) CommandHistory(ctx context.Context, limit uint) ([]*Command, error) {
 	var ok error
 	var allCommands []*Command

@@ -4,21 +4,9 @@ import (
 	"log"
 )
 
-func runTests() {
-	//mainTestSuite()
-	//singleListTest()
-	lineageTest()
-	//testGetAllCommands()
-	//testGetRecentCommands()
-}
-
+// Lets actually build an app with this thing
 func main() {
-	var ioHelper IoHelper
-	log.SetPrefix("::APP::")
-	log.SetFlags(0)
-	log.Print("main()::")
-	log.Println("DPDIGITAL,LLC::COMMANDER::<INIT>::")
-	ipInfo, _ := ioHelper.getHostIpConfig()
-	log.Println(ipInfo)
-	//runTests()
+	log.Println("::APPSTART CMDR WEB::")
+	//TODO
+	runTests()
 }

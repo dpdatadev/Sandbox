@@ -10,10 +10,12 @@ import (
 	"github.com/google/uuid"
 )
 
-//TODO, use actual unit testing, bdd, mocks, etc.,
+//TODO, BETA - use actual unit testing, bdd, mocks, etc.,
+//Replacing all these with real unit tests is gonna suck (2/21)
 
 // TESTING
 const (
+	LOCAL_PARSE_TXT_FILE   = "proc.txt"
 	LOCAL_SQLITE_CMD_DB1   = "testcmd1"
 	LOCAL_SQLITE_CMD_DB2   = "testcmd2"
 	LOCAL_SQLITE_CMD_DB3   = "testcmd3"
@@ -55,7 +57,7 @@ func getTestDataBase(databaseName string) (*sql.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return db, err
+	return db, nil
 }
 
 func setupLocalInMemoryCommandService() *CommandService {
@@ -97,6 +99,20 @@ type TestCommand struct {
 	Description string
 }
 
+func setupConsoleCommandTestFromFileSuite() (CommandRunner, []*Command) {
+	var CmdIOHelper CmdIOHelper
+
+	commands := CmdIOHelper.ParseCommands(LOCAL_PARSE_TXT_FILE)
+
+	if len(commands) == 0 {
+		PrintFailure("No commands parsed from file, check for errors and ensure proc.txt is in the correct location with valid commands")
+	}
+
+	consoleCommandRunner := NewCommandRunner(RunnerType_Console)
+
+	return consoleCommandRunner, commands
+}
+
 func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 	// I could just as well call NewCommandService to return a RemoteSSH executor to download logs into a SQLITE Store
 	//svc := NewCommandService(sqlStore, sshExec)
@@ -109,13 +125,15 @@ func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 
 	cmd2 := NewCommand("ifconfig", []string{}, "Get another local IP config output")
 
-	cmd3 := NewCommand("ifconfig", []string{""}, "Intentionally fail") //TEST BAD ARGS
+	//TEST BAD ARGS
+	cmd3 := NewCommand("ifconfig", []string{""}, "Intentionally fail")
 
 	cmd4 := NewCommand("free", []string{"-g", "-h"}, "Get Active Memory Usage")
 
 	cmd5 := NewCommand("arp", []string{"-a"}, "Get Local ARP Cache")
 
-	cmd6 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND") //TEST SECURITY POLICY
+	//TEST SECURITY POLICY
+	cmd6 := NewCommand("sudo", []string{"dd"}, "NAUGHTY COMMAND")
 
 	commands := []*Command{hostInfo, cmd, cmd1, cmd2, cmd3, cmd4, cmd5, cmd6}
 
@@ -137,10 +155,10 @@ func ConsoleInMemoryCommandTest() {
 
 	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
 
-	ioHelper := &IoHelper{}
+	var CmdIOHelper CmdIOHelper
 
 	for _, cmd := range testCommands {
-		ioHelper.ConsoleDump(cmd)
+		CmdIOHelper.ConsoleDump(cmd)
 	}
 }
 
@@ -149,11 +167,7 @@ func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 
 	defer cancel()
 
-	testDb, err := setupTestDatabase(databaseName, tableSQL)
-
-	if err != nil {
-		log.Panicf("DB ERROR %v", err)
-	}
+	testDb, _ := setupTestDatabase(databaseName, tableSQL)
 
 	defer testDb.Close()
 
@@ -163,18 +177,37 @@ func ConsoleSqliteCommandTest(databaseName string, tableSQL string) {
 
 	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
 
-	ioHelper := &IoHelper{}
+	var CmdIOHelper CmdIOHelper
 
 	for _, cmd := range testCommands {
-		ioHelper.ConsoleDump(cmd)
+		CmdIOHelper.ConsoleDump(cmd)
+	}
+}
+
+func ConsoleSqliteCommandFileTest(databaseName string, tableSQL string) {
+	ctx, cancel := setupTimeoutContext()
+
+	defer cancel()
+
+	testDb, _ := setupTestDatabase(databaseName, tableSQL)
+
+	defer testDb.Close()
+
+	svc := setupLocalSqliteCommandService(testDb)
+
+	consoleCommandRunner, commands := setupConsoleCommandTestFromFileSuite()
+
+	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
+
+	var CmdIOHelper CmdIOHelper
+
+	for _, cmd := range testCommands {
+		CmdIOHelper.ConsoleDump(cmd)
 	}
 }
 
 func testGetAllCommands() {
-	db, err := sql.Open("sqlite3", "testcmd1.db")
-	if err != nil {
-		log.Fatal(err)
-	}
+	db, _ := getTestDataBase(LOCAL_SQLITE_CMD_DB1)
 	defer db.Close()
 
 	s := NewSqliteCommandStore(db)
@@ -193,10 +226,7 @@ func testGetAllCommands() {
 }
 
 func testGetRecentCommands() {
-	db, err := sql.Open("sqlite3", "testcmd1.db")
-	if err != nil {
-		log.Fatal(err)
-	}
+	db, _ := getTestDataBase(LOCAL_SQLITE_CMD_DB1)
 	defer db.Close()
 
 	s := NewSqliteCommandStore(db)
@@ -240,6 +270,7 @@ func lineageTest() {
 	defer cancel()
 
 	testDb, _ := getTestDataBase(LOCAL_SQLITE_CMD_DB1)
+	defer testDb.Close()
 
 	store := NewSqliteCommandStore(testDb)
 
@@ -270,14 +301,20 @@ func lineageTest() {
 
 // Testing
 func mainTestSuite() {
-	var ioHelper IoHelper
-	log.SetPrefix("::TEST::")
+	log.SetPrefix("::Test Runs::")
 	log.SetFlags(0)
-	log.Print("main()::")
-	ipInfo, _ := ioHelper.getHostIpConfig()
-	log.Println(ipInfo)
+	log.Print("mainTestSuite()::")
+	ConsoleSqliteCommandFileTest(LOCAL_SQLITE_CMD_DB5, LOCAL_SQLITE_CMD_TABLE)
 	//ConsoleInMemoryCommandTest()
-	ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
+	//ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
+}
+
+func runTests() {
+	//log.SetPrefix("::APP::")
+	//log.SetFlags(0)
+	//log.Print("main()::")
+	//log.Println("DPDIGITAL,LLC::COMMANDER::<INIT>::")
+	mainTestSuite()
 }
 
 //Feb week 3
