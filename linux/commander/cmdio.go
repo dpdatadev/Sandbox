@@ -28,14 +28,13 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	PrintDebug("COMMAND READ[+]: %s\n", fileName)
 
 	//Check file extension (replace with YAML in BETA)
-	if !strings.HasSuffix("proc.txt", ".txt") {
-		PrintFailure("Invalid file type: %s\n", "proc.txt")
+	if !strings.HasSuffix(fileName, ".txt") {
+		PrintFailure("Invalid file type: %s\n", fileName)
 		log.Println("Only .TXT files supported at this time for parsing (alpha v0.1)")
 		return []*Command{}
 	}
 
-	//file, err := os.Open(fileName)
-	file := io.GetFile(fileName) //test this
+	file := io.GetFileRead(fileName)
 	//Handle file open
 	if file == nil {
 		PrintFailure("Error opening file: %v\n", errors.New("file is nil"))
@@ -131,14 +130,31 @@ func (io *CmdIOHelper) Right(s string, size int) (string, error) {
 }
 
 // Return files for Logging or dumping
-func (io *CmdIOHelper) GetFile(fileName string) *os.File {
+func (io *CmdIOHelper) GetFileWrite(fileName string) *os.File {
 	if fileName == "" {
-		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
+		PrintFailure("errors.New(\"\"): %v\n", errors.New("WRITE FILE ERROR"))
+		return nil
 	}
 
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		PrintFailure("errors.New(\"\"): %v\n", err)
+		return nil
+	}
+
+	return file
+}
+
+func (io *CmdIOHelper) GetFileRead(fileName string) *os.File {
+	if fileName == "" {
+		PrintFailure("errors.New(\"\"): %v\n", errors.New("READ FILE ERROR"))
+		return nil
+	}
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		PrintFailure("errors.New(\"\"): %v\n", err)
+		return nil
 	}
 
 	return file
@@ -174,9 +190,17 @@ func (io *CmdIOHelper) ConsoleDump(cmd *Command) {
 	}
 }
 
-func (io *CmdIOHelper) FileDump(cmd *Command, logFile string) {
+func (io *CmdIOHelper) FileDump(cmd *Command, logFileName string) {
 
-	log.SetOutput(io.GetFile(logFile))
+	logFile := io.GetFileWrite(logFileName)
+
+	if logFile == nil {
+		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
+		return
+	}
+
+	defer logFile.Close()
+	log.SetOutput(logFile)
 
 	if cmd.Stderr != "" || cmd.Status == "FAILED" {
 		log.Fatalf("Command ID: %v\n", cmd.ID)
@@ -193,6 +217,6 @@ func (io *CmdIOHelper) FileDump(cmd *Command, logFile string) {
 		log.Printf("STDOUT:\n %s\n", cmd.Stdout)
 		//ConsoleStdOutHandle(cmd.Stdout) //TODO
 	} else {
-		fmt.Println(fmt.Errorf("UNKNOWN ERROR OCCURRED: %s", cmd.ID.String()))
+		PrintFailure("UNKNOWN ERROR OCCURRED: %s\n", cmd.ID.String())
 	}
 }

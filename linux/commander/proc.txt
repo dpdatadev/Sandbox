@@ -5,3 +5,8 @@ ifconfig
 uptime
 nmap -sn 192.168.1.0/24
 arp -a
+ps ax
+tcpdump -D
+dmesg
+sudo apt-get update
+sudo apt-get upgrade

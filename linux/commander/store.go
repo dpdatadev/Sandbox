@@ -1,7 +1,5 @@
 package main
 
-//BETA FEATURE
-
 //todo - split into separate files
 
 import (
@@ -15,6 +13,13 @@ import (
 
 	"github.com/google/uuid"
 )
+
+//BETA:
+//I have made a struct field datatype/API call dependent on a third party library.
+//Only string should be used to represent the ID - the UUID implementation abstracted away.
+//Now if the UUID library gets changed, I'll have to update a crap load of code.
+//In the database, the UUID's are stored as string representations of UUID's, so string
+//should be all the caller needs to work with.
 
 type CommandStore interface {
 	//Store a single Command (InMemory, SQLITE, FlatFile)

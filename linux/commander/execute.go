@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log"
 	"os/exec"
 	"time"
@@ -35,13 +36,16 @@ func NewLocalExecutor() *LocalExecutor {
 	return &LocalExecutor{}
 }
 
-func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFile string) {
-	// Open the log file. O_APPEND appends to an existing file, O_CREATE creates the file if it
-	// doesn't exist, and O_WRONLY opens the file in write-only mode.
+func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFileName string) {
 
 	var CmdIOHelper CmdIOHelper
 
-	file := CmdIOHelper.GetFile(logFile)
+	file := CmdIOHelper.GetFileWrite(logFileName)
+
+	if file == nil {
+		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
+		return
+	}
 
 	// Ensure the file is closed when the main function exits.
 	defer file.Close()

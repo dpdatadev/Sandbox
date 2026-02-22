@@ -15,6 +15,8 @@ import (
 
 // TESTING
 const (
+	CMD_LINEAGE_LOG_FILE_1 = "linlog_1.txt"
+	CMD_LINEAGE_LOG_FILE_2 = "linlog_2.txt"
 	LOCAL_PARSE_TXT_FILE   = "proc.txt"
 	LOCAL_SQLITE_CMD_DB1   = "testcmd1"
 	LOCAL_SQLITE_CMD_DB2   = "testcmd2"
@@ -206,6 +208,43 @@ func ConsoleSqliteCommandFileTest(databaseName string, tableSQL string) {
 	}
 }
 
+func ConsoleSqliteCommandFileWithLineageTest(databaseName string, tableSQL string) {
+
+	var CmdIOHelper CmdIOHelper
+
+	ctx, cancel := setupTimeoutContext()
+
+	defer cancel()
+
+	testDb, _ := setupTestDatabase(databaseName, tableSQL)
+
+	defer testDb.Close()
+
+	svc := setupLocalSqliteCommandService(testDb)
+
+	consoleCommandRunner, commands := setupConsoleCommandTestFromFileSuite()
+
+	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
+
+	hs := &HistoryService{
+		AuditCommands: testCommands,
+	}
+
+	lineageObjects := hs.BeginChain()
+	err := hs.LinkChain(lineageObjects)
+
+	if err != nil {
+		PrintStdErr("Error linking lineage: %v", err)
+		return
+	}
+
+	for _, cmd := range testCommands {
+		CmdIOHelper.ConsoleDump(cmd)
+	}
+
+	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_2)
+}
+
 func testGetAllCommands() {
 	db, _ := getTestDataBase(LOCAL_SQLITE_CMD_DB1)
 	defer db.Close()
@@ -296,7 +335,7 @@ func lineageTest() {
 			obj.ID, obj.BatchID, obj.PrevID, obj.Status, obj.NextID, obj.RootID)
 	}
 
-	WriteLineageToFile(lineageObjects, "chain_3.txt")
+	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_1)
 }
 
 // Testing
@@ -304,7 +343,8 @@ func mainTestSuite() {
 	log.SetPrefix("::Test Runs::")
 	log.SetFlags(0)
 	log.Print("mainTestSuite()::")
-	ConsoleSqliteCommandFileTest(LOCAL_SQLITE_CMD_DB5, LOCAL_SQLITE_CMD_TABLE)
+	ConsoleSqliteCommandFileWithLineageTest(LOCAL_SQLITE_CMD_DB4, LOCAL_SQLITE_CMD_TABLE)
+	//ConsoleSqliteCommandFileTest(LOCAL_SQLITE_CMD_DB5, LOCAL_SQLITE_CMD_TABLE)
 	//ConsoleInMemoryCommandTest()
 	//ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
 }

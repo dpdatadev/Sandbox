@@ -6,15 +6,32 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO 2-17
-// Explore lineage/tracking (Linked List design)
-/*
-lineage tracking
-PrevID	Backtracking, failure tracing
-NextID	Forward traversal, replay
-ParentID	Branch lineage
-RootID	Workflow grouping
-*/
+// Reporting the status of the command
+const (
+	StatusPending  = "PENDING"
+	StatusRunning  = "RUNNING"
+	StatusSuccess  = "SUCCESS"
+	StatusFailed   = "FAILED"
+	StatusRejected = "REJECTED (SECURITY)"
+)
+
+const (
+	_ = iota
+	CommandType_NIL
+	CommandType_TEXT
+	CommandType_WEB
+	CommandType_DATA
+	CommandType_OTHER
+)
+
+const (
+	_ = iota
+	RunnerType_Console
+	RunnerType_FlatFile
+	RunnerType_HTTP
+	RunnerType_UDP
+)
+
 type Command struct {
 	ID       uuid.UUID
 	Name     string

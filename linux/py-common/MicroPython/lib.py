@@ -216,9 +216,9 @@ DEBUG = True
 # TODO :: Add Git Repo
 
 # Wi-Fi credentials
-# TODO - do something with these?
-SSID = "CasaNonna888"
-PASSWORD = "p@s$w0rD!!!"
+# TODO :: Read from local board file system or env variables
+SSID = ""
+PASSWORD = ""
 
 
 class WiFiManager:
@@ -230,8 +230,8 @@ class WiFiManager:
         self.ssid = ssid
         self.password = password
 
-        if type not in ["STA", "AP"]:
-            raise ValueError("Type must be either 'STA' or 'AP'")
+        #if type not in ["STA", "AP"]:
+            #raise ValueError("Type must be either 'STA' or 'AP'")
 
         if type == "STA":
             interface_type = network.STA_IF
@@ -240,7 +240,8 @@ class WiFiManager:
             self.IPV4 = self.WLAN.ifconfig()[0]
             self.interface_type = interface_type
             self._scan_networks()
-        elif type == "AP":
+        else:
+        #elif type == "AP":
             raise ValueError("Only STA mode supported currently")
 
     @property

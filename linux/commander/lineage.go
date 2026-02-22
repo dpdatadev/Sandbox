@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 )
@@ -210,6 +209,7 @@ func (sl *SList[T]) Print() {
 type Lineage interface {
 	BeginChain() []*CommandLineage          //Step 1 - (Hydrate) - create CommandLineage objects from Command objects (copying relevant fields and adding lineage metadata)
 	LinkChain(cmds []*CommandLineage) error //Step 2 - (Chain together) - assign PrevID, NextID, RootID to CommandLineage objects to create a linked tracking chain
+	LogLineage(lineage []*CommandLineage, lineageFileName string) error
 	//Persist(ctx context.Context, cmds []*CommandLineage) error //Step 3 - save lineage tracking objects to database (or other store) for queryable lineage history
 	//WalkForward(ctx context.Context, startID string) ([]*Command, error)
 	//WalkBackward(ctx context.Context, startID string) ([]*Command, error)
@@ -248,7 +248,7 @@ type CommandLineage struct {
 func (hs *HistoryService) BeginChain() []*CommandLineage {
 
 	if len(hs.AuditCommands) == 0 {
-		return nil
+		return []*CommandLineage{}
 	}
 
 	lineageObjects := make([]*CommandLineage, 0, len(hs.AuditCommands))
@@ -290,7 +290,7 @@ func (hs *HistoryService) LinkChain(
 ) error {
 
 	if len(cmds) == 0 {
-		return nil
+		return errors.New("Chain Empty! No Commands to Link!")
 	}
 
 	rootID := cmds[0].ID
@@ -300,6 +300,7 @@ func (hs *HistoryService) LinkChain(
 		cmds[i].RootID = rootID //&
 
 		if i > 0 {
+			//copy of UUID value (string)
 			prev := cmds[i-1].ID
 			cmds[i].PrevID = prev //&
 		}
@@ -314,9 +315,13 @@ func (hs *HistoryService) LinkChain(
 }
 
 // Write lineage graph to file
-func WriteLineageToFile(lineage []*CommandLineage, filename string) error {
-	f, err := os.Create(filename)
-	if err != nil {
+func (hs *HistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string) error {
+	var CmdIOHelper CmdIOHelper
+
+	f := CmdIOHelper.GetFileWrite(lineageFileName)
+	if f == nil {
+		err := errors.New("LINEAGE FILE ERROR")
+		PrintFailure("errors.New(\"\"): %v\n", err)
 		return err
 	}
 	defer f.Close()
@@ -333,7 +338,7 @@ func WriteLineageToFile(lineage []*CommandLineage, filename string) error {
 }
 
 //TODO - implement DB persistence for lineage tracking objects (could be a separate table with foreign key to Commands or a JSON blob in Commands table)
-
+//BETA
 //Database lineage will come
 /*
 func (dbs *DBHistoryService) WalkForward(
