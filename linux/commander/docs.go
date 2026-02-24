@@ -102,6 +102,18 @@ sshCmd.
   Pipe(httpCmd).
   Execute(ctx)
 
+  SSH Proxies (see https://github.com/appleboy/easyssh-proxy)
+       +--------+       +----------+      +-----------+
+     | Laptop | <-->  | Jumphost | <--> | FooServer |
+     +--------+       +----------+      +-----------+
+
+                         OR
+
+     +--------+       +----------+      +-----------+
+     | Laptop | <-->  | Firewall | <--> | FooServer |
+     +--------+       +----------+      +-----------+
+     192.168.1.5       121.1.2.3         10.10.29.68
+
 
   Now pipelines can cross protocols:
 
@@ -176,7 +188,7 @@ Processing the data is the responsiblity of another framework or user code and d
 
 Study this pattern*
 */
-
+//TODO, test on long running commands
 //Why not just use Proctools like Goreman?
 //Depends on what you're goal is:
 /*

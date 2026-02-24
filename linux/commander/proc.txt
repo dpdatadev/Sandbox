@@ -8,5 +8,7 @@ arp -a
 ps ax
 tcpdump -D
 dmesg
+service redis status
+service docker status
 sudo apt-get update
 sudo apt-get upgrade

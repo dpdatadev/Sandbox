@@ -21,6 +21,15 @@ import (
 //In the database, the UUID's are stored as string representations of UUID's, so string
 //should be all the caller needs to work with.
 
+func GetSQLITEDB(databaseName string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName))
+	if err != nil {
+		PrintFailure("Error opening database: %v", err)
+		return nil, err
+	}
+	return db, nil
+}
+
 type CommandStore interface {
 	//Store a single Command (InMemory, SQLITE, FlatFile)
 	Create(ctx context.Context, cmd *Command) error
