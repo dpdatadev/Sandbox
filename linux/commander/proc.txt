@@ -5,10 +5,8 @@ ifconfig
 uptime
 nmap -sn 192.168.1.0/24
 arp -a
-ps ax
+ps aux
 tcpdump -D
 dmesg
 service redis status
 service docker status
-sudo apt-get update
-sudo apt-get upgrade

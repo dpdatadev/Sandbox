@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,7 +40,7 @@ type Command struct {
 	Args     []string
 	Notes    string
 
-	// Basic lineage
+	// Basic lineage (handled in DAO (CommandLineage))
 	//PrevID *string
 	//NextID *string
 
@@ -56,6 +57,10 @@ type Command struct {
 	CreatedAt time.Time
 	StartedAt time.Time
 	EndedAt   time.Time
+}
+
+func (c *Command) ExecString() string {
+	return c.Name + " " + strings.Join(c.Args, " ")
 }
 
 func NewCommand(name string, args []string, notes string) *Command {

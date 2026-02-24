@@ -27,6 +27,8 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 
 	PrintDebug("COMMAND READ[+]: %s\n", fileName)
 
+	fileName = strings.ToLower(strings.TrimSpace(fileName))
+
 	//Check file extension (replace with YAML in BETA)
 	if !strings.HasSuffix(fileName, ".txt") {
 		PrintFailure("Invalid file type: %s\n", fileName)
@@ -54,13 +56,16 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	commands := make([]*Command, 0, len(commandData))
 	commandLines := strings.SplitSeq(commandData, "\n")
 	for cmd := range commandLines {
-		cmdFields := strings.Fields(cmd)
-		cmdName := cmdFields[0]
-		cmdArgs := cmdFields[1:]
-		cmdNotes := fmt.Sprintf("Ingested from %s", fileName)
-		command := NewCommand(cmdName, cmdArgs, cmdNotes)
-		commands = append(commands, command)
-		PrintDebug("Ingested Command: %s, Args: %v\n", cmdName, cmdArgs)
+		//TODO, eventually handling TOML or YAML or Proc files, not plain .txt
+		if !strings.HasPrefix(cmd, "//") && !strings.HasPrefix(cmd, "##") { //TODO, test coverage
+			cmdFields := strings.Fields(cmd)
+			cmdName := cmdFields[0]
+			cmdArgs := cmdFields[1:]
+			cmdNotes := fmt.Sprintf("Ingested from %s", fileName)
+			command := NewCommand(cmdName, cmdArgs, cmdNotes)
+			commands = append(commands, command)
+			PrintDebug("Ingested Command: %s, Args: %v\n", cmdName, cmdArgs)
+		}
 	}
 
 	return commands

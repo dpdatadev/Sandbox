@@ -1,5 +1,6 @@
 package main
 
+//TODO, remove BETA
 import (
 	"encoding/json"
 	"log"

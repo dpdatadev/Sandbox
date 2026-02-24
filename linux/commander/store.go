@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,7 +23,7 @@ import (
 //should be all the caller needs to work with.
 
 func GetSQLITEDB(databaseName string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName))
+	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName)) //TODO, hanlde paths
 	if err != nil {
 		PrintFailure("Error opening database: %v", err)
 		return nil, err
@@ -43,7 +44,22 @@ type CommandStore interface {
 	//Store size can be managed separately
 }
 
+// Sharing behavior for all CommandStore implementations (InMemory, SQLITE, FlatFile)
+type BaseCommandStore struct{}
+
+func (b *BaseCommandStore) CanStore(cmd *Command) bool {
+	var canBeSavedToStore bool
+	if cmd == nil || cmd.ID == uuid.Nil || strings.TrimSpace(cmd.ID.String()) == "" {
+		canBeSavedToStore = false
+	} else {
+		canBeSavedToStore = true
+	}
+
+	return canBeSavedToStore
+}
+
 type InMemoryCommandStore struct {
+	BaseCommandStore
 	mu   sync.RWMutex
 	data map[uuid.UUID]*Command
 }
@@ -51,6 +67,7 @@ type InMemoryCommandStore struct {
 /* SQLITE impl */ // TODO, testing
 // 2/16, flesh out, test, conform to CommandStore interface
 type SQLiteCommandStore struct {
+	BaseCommandStore
 	db *sql.DB
 }
 
@@ -209,11 +226,14 @@ func (s *SQLiteCommandStore) Update(
 	return nil
 }
 
-// TODO
 func (s *SQLiteCommandStore) SaveBatch(
 	ctx context.Context,
 	cmds []*Command,
 ) error {
+
+	if len(cmds) == 0 {
+		return errors.New("No Commands to save")
+	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -233,16 +253,19 @@ func (s *SQLiteCommandStore) SaveBatch(
 	defer stmt.Close()
 
 	for _, cmd := range cmds {
-		_, err := stmt.ExecContext(
-			ctx,
-			cmd.ID,
-			cmd.Name,
-			cmd.Status,
-			cmd.CreatedAt,
-		)
-		if err != nil {
-			tx.Rollback()
-			return err
+
+		if s.CanStore(cmd) {
+			_, err := stmt.ExecContext(
+				ctx,
+				cmd.ID,
+				cmd.ExecString(),
+				cmd.Status,
+				cmd.CreatedAt,
+			)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
 		}
 	}
 
@@ -364,6 +387,10 @@ func (s *SQLiteCommandStore) Create(
 	cmd *Command,
 ) error {
 
+	if !s.CanStore(cmd) {
+		return errors.New("Command cannot be nil or have blank UUID")
+	}
+
 	query := `
         INSERT INTO commands (
             uuid,
@@ -383,7 +410,7 @@ func (s *SQLiteCommandStore) Create(
 		ctx,
 		query,
 		cmd.ID,
-		cmd.Name,
+		cmd.ExecString(),
 		cmd.Status,
 		cmd.CreatedAt,
 		cmd.StartedAt,
@@ -420,7 +447,6 @@ func (s *InMemoryCommandStore) Create(
 ) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
 	s.data[cmd.ID] = cmd
 	return nil
 }
@@ -429,6 +455,10 @@ func (s *InMemoryCommandStore) GetByID(
 	ctx context.Context,
 	id uuid.UUID,
 ) (*Command, error) {
+
+	if id == uuid.Nil {
+		return nil, errors.New("invalid UUID")
+	}
 
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -445,7 +475,7 @@ func (s *InMemoryCommandStore) GetByID(
 func (s *InMemoryCommandStore) GetAll(ctx context.Context) ([]*Command, error) {
 
 	// Honor context cancellation
-	//Overkill here, add in SQL and Network Stores
+	//Overkill here, add in SQL and Network Stores (usually handled for us in library i.e. SQL Drivers sql.DB*)
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()

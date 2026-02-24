@@ -28,27 +28,29 @@ func NewCommandService(
 func (s *CommandService) CommandHistory(ctx context.Context, limit uint) ([]*Command, error) {
 	var ok error
 	var allCommands []*Command
-	var commandSubset []*Command
 
 	if limit == 0 {
 		allCommands, ok = s.Store.GetAll(ctx)
 		if ok != nil {
 			return nil, errors.New("ERR - RETRIEVAL")
 		}
+		PrintDebug("Returning all %d commands", len(allCommands))
 		return allCommands, nil
 	}
 
-	if limit > 0 {
-		var subsetLimit uint
-		if limit > 1 {
-			subsetLimit = limit - 1
+	if limit > 0 { //TODO, review
+		var onlyOneLimit uint
+		var commandSubset []*Command
+		if limit == 1 {
+			onlyOneLimit = limit + 1
+			commandSubset = make([]*Command, 0, onlyOneLimit)
 		}
-		commandSubset = make([]*Command, limit)
+		commandSubset = make([]*Command, 0, limit)
 		allCommands, ok = s.Store.GetAll(ctx)
 		if ok != nil {
 			return nil, errors.New("ERR - RETRIEVAL")
 		}
-		for i := range subsetLimit {
+		for i := range limit {
 			commandSubset = append(commandSubset, allCommands[i])
 		}
 		return commandSubset, nil
@@ -63,7 +65,7 @@ func (s *CommandService) RunCommand(
 ) error {
 
 	if NewDefaultScrubber().Scrub(cmd) != nil {
-		//ioHelper := &IoHelper{}
+		//var ioHelper CmdIOHelper
 		violation := "SECURITY POLICY TRIGGERED"
 
 		// Mark rejected
