@@ -57,6 +57,7 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	commandLines := strings.SplitSeq(commandData, "\n")
 	for cmd := range commandLines {
 		//TODO, eventually handling TOML or YAML or Proc files, not plain .txt
+		//ignore commented out commands
 		if !strings.HasPrefix(cmd, "//") && !strings.HasPrefix(cmd, "##") { //TODO, test coverage
 			cmdFields := strings.Fields(cmd)
 			cmdName := cmdFields[0]

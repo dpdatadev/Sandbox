@@ -1,5 +1,6 @@
 package main
 
+//TODO
 import (
 	"errors"
 	"fmt"
@@ -57,6 +58,37 @@ func main() {
 		store := NewSqliteCommandStore(db)
 
 		recentCommands, err := store.GetRecent(ctx, 5)
+		sendCommands := make([]*CommandDTO, 0, len(recentCommands))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		for _, cmd := range recentCommands {
+			PrintDebug(fmt.Sprintf("Command: %s, Status: %s\n", cmd.Name, cmd.Status))
+			cmdDTO, err := (&CommandDTO{}).New(cmd)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			sendCommands = append(sendCommands, cmdDTO)
+		}
+
+		c.JSON(http.StatusOK, sendCommands)
+	})
+
+	r.GET("/apitest/commands/all", func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		ctx := c.Request.Context() //Is this the right context to use here for the store operations?
+		db, err := GetSQLITEDB(LOCAL_SQLITE_CMD_DB4)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		store := NewSqliteCommandStore(db)
+
+		recentCommands, err := store.GetAll(ctx)
 		sendCommands := make([]*CommandDTO, 0, len(recentCommands))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -38,9 +38,7 @@ func NewLocalExecutor() *LocalExecutor {
 
 func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFileName string) {
 
-	var CmdIOHelper CmdIOHelper
-
-	file := CmdIOHelper.GetFileWrite(logFileName)
+	file := (&CmdIOHelper{}).GetFileWrite(logFileName)
 
 	if file == nil {
 		PrintFailure("errors.New(\"\"): %v\n", errors.New("FILE ERROR"))
