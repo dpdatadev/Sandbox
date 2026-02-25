@@ -135,12 +135,12 @@ FileCommand   → write/read
 SQLCommand    → database
 
 
-ExecChain is a composable command execution framework for Go that extends os/exec with persistence, security policies, and multi-protocol pipelines.
+ExecChain is a composable command execution framework for Go that builds upon os/exec with persistence, security policies, and multi-protocol pipelines.
 
 Track, audit, and chain shell, SSH, HTTP, and file commands into reproducible execution graphs — with Redis caching and database storage built in.
 
-pipeline := cmdforge.NewPipeline()
-
+pipeline := cmder.NewPipeline()
+//Pipeline must be done before Beta
 pipeline.
     SSH(sshConfig, "journalctl", []string{"-n", "500"}).
     PipeLocal("grep", []string{"ERROR"}).

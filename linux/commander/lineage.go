@@ -4,7 +4,6 @@ package main
 
 // Lineage/tracker impl
 import (
-	"container/list"
 	"context"
 	"errors"
 	"fmt"
@@ -81,24 +80,6 @@ func (s *SQLiteCommandStore) SaveBatchHistory(
 	}
 
 	return tx.Commit()
-}
-
-// Double llist impl w container/list
-func DoubleListTest() {
-	// Create a new list and put some numbers in it.
-	l := list.New()
-	cmd := NewCommand("ip", []string{"neighbor"}, "test")
-	cmd1 := NewCommand("ip", []string{"addr"}, "test")
-
-	l.PushFront(cmd)
-	l.PushBack(cmd1)
-
-	PrintDebug("List length: %d\n", l.Len())
-
-	// Iterate through list and print its contents.
-	for e := l.Front(); e != nil; e = e.Next() {
-		PrintDebug("Element: %v\n", e.Value)
-	}
 }
 
 // //////////////////////////////////
@@ -253,9 +234,7 @@ func (hs *HistoryService) BeginChain() []*CommandLineage {
 
 	lineageObjects := make([]*CommandLineage, 0, len(hs.AuditCommands))
 
-	var CmdIOHelper CmdIOHelper
-
-	shortUUID, err := CmdIOHelper.NewShortUUID()
+	shortUUID, err := (&CmdIOHelper{}).NewShortUUID()
 
 	var batchSuffix string
 
@@ -316,9 +295,8 @@ func (hs *HistoryService) LinkChain(
 
 // Write lineage graph to file
 func (hs *HistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string) error {
-	var CmdIOHelper CmdIOHelper
 
-	f := CmdIOHelper.GetFileWrite(lineageFileName)
+	f := (&CmdIOHelper{}).GetFileWrite(lineageFileName)
 	if f == nil {
 		err := errors.New("LINEAGE FILE ERROR")
 		PrintFailure("errors.New(\"\"): %v\n", err)

@@ -210,8 +210,6 @@ func ConsoleSqliteCommandFileTest(databaseName string, tableSQL string) {
 
 func ConsoleSqliteCommandFileWithLineageTest(databaseName string, tableSQL string) {
 
-	var CmdIOHelper CmdIOHelper
-
 	ctx, cancel := setupTimeoutContext()
 
 	defer cancel()
@@ -234,12 +232,12 @@ func ConsoleSqliteCommandFileWithLineageTest(databaseName string, tableSQL strin
 	err := hs.LinkChain(lineageObjects)
 
 	if err != nil {
-		PrintStdErr("Error linking lineage: %v", err)
+		PrintFailure("Error linking lineage: %v", err)
 		return
 	}
 
 	for _, cmd := range testCommands {
-		CmdIOHelper.ConsoleDump(cmd)
+		(&CmdIOHelper{}).ConsoleDump(cmd)
 	}
 
 	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_2)
