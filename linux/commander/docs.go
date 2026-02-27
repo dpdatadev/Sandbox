@@ -189,6 +189,8 @@ Processing the data is the responsiblity of another framework or user code and d
 Study this pattern*
 */
 //TODO, test on long running commands
+//I may need to take a break for a bit and review what exactly I want to use this for
+//Investigating streaming to console - https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
 //Why not just use Proctools like Goreman?
 //Depends on what you're goal is:
 /*

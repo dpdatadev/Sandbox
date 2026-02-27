@@ -196,12 +196,9 @@ type Lineage interface {
 	//WalkBackward(ctx context.Context, startID string) ([]*Command, error)
 }
 
-type HistoryService struct {
-	AuditCommands []*Command
-}
 type DBHistoryService struct {
-	History HistoryService
-	Store   CommandStore
+	AuditCommands []*Command
+	Store         CommandStore
 }
 
 // TODO, beta thoughts (think on this) -- I think the second struct needs to be removed and keep PrevID and NextID on Command
@@ -226,7 +223,7 @@ type CommandLineage struct {
 
 // ///////////////////////////////////////////////////////////
 // TODO - improve https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
-func (hs *HistoryService) BeginChain() []*CommandLineage {
+func (hs *DBHistoryService) BeginChain() []*CommandLineage {
 
 	if len(hs.AuditCommands) == 0 {
 		return []*CommandLineage{}
@@ -264,7 +261,7 @@ func (hs *HistoryService) BeginChain() []*CommandLineage {
 	return lineageObjects
 }
 
-func (hs *HistoryService) LinkChain(
+func (hs *DBHistoryService) LinkChain(
 	cmds []*CommandLineage, //todo add history struct to keep separate table of tracking and we can join on uuid
 ) error {
 
@@ -294,7 +291,7 @@ func (hs *HistoryService) LinkChain(
 }
 
 // Write lineage graph to file
-func (hs *HistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string) error {
+func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string) error {
 
 	f := (&CmdIOHelper{}).GetFileWrite(lineageFileName)
 	if f == nil {

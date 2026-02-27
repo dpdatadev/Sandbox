@@ -25,14 +25,6 @@ const (
 	CommandType_OTHER
 )
 
-const (
-	_ = iota
-	RunnerType_Console
-	RunnerType_FlatFile
-	RunnerType_HTTP
-	RunnerType_UDP
-)
-
 type Command struct {
 	ID       uuid.UUID
 	Name     string

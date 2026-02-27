@@ -1,0 +1,13 @@
+Linux Host (Network Brain)
+    ↓
+Your Streaming Executor
+    ↓
+Network Scan Command
+    ↓
+Event Stream
+    ↓
+Small HTTP endpoint
+    ↓
+Pico W polls or subscribes
+    ↓
+LED + buzzer + email alert

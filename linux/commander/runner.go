@@ -6,6 +6,14 @@ import (
 	"sync"
 )
 
+const (
+	_ = iota
+	CONSOLE_RUN
+	FLATFILE_RUN
+	HTTP_RUN
+	UDP_RUN
+)
+
 // Types built for Automation and Testing purposes
 type CommandRunner interface {
 	RunCommands(svc *CommandService, ctx context.Context, cmds []*Command, debug bool) []*Command

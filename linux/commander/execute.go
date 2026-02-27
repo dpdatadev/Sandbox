@@ -29,14 +29,14 @@ type CommandExecutor interface {
 	) (*ExecutionResult, error)
 }
 
-// Local (not Remote) Command Executor (Default)
-type LocalExecutor struct{}
+type BaseExecutor struct{}
 
-func NewLocalExecutor() *LocalExecutor {
-	return &LocalExecutor{}
+// Local (not Remote) Command Executor (Default)
+type LocalExecutor struct {
+	BaseExecutor
 }
 
-func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFileName string) {
+func (le *BaseExecutor) debugDump(cmd *Command, er *ExecutionResult, logFileName string) {
 
 	file := (&CmdIOHelper{}).GetFileWrite(logFileName)
 
@@ -65,6 +65,10 @@ func (le *LocalExecutor) debugDump(cmd *Command, er *ExecutionResult, logFileNam
 	log.Println("ExitCode: ", er.ExitCode)
 	log.Println("::END EXECUTION::")
 	log.Println("===========================================================================================")
+}
+
+func NewLocalExecutor() *LocalExecutor {
+	return &LocalExecutor{}
 }
 
 func (e *LocalExecutor) Execute(
