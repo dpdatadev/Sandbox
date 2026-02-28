@@ -7,10 +7,45 @@ import (
 
 /*
 
-COMMANDER (?) still picking the name
+CMDHUB
 https://chatgpt.com/c/698c0190-d8ec-832d-8aee-537b6c64320d
 
+
+Core Values
+
+Command IDENTITY
+
+Execution lifecycle
+
+Streaming
+
+Persistence
+
+Lineage
+
+Stores
+
+Auditability
+
+
+//March 1st
+//Big changes are coming in Alpha 2 and Beta.
+//The focus right now is on usage. I'm going to build.
+//Not theorize - not learn new language features.
+//But the focus now is building things I want this computer to do.
+//And focus on the auditing/tracing/persistance part of the framework.
+//We will likely use EXECX for fluent API/improved osExec functionality.
+//There's no reason to re-invent the wheel of any kind surrounding how execution works.
+//I need to focus on what currently doesn't exist. And that's chaining, tracing, and auditing commands.
+//Biggest plus for using EXECX is it is already complete for MacOS and Windows and I don't have to
+//implement custom code for my new "Commands" to work on Linux and Windows.
+
+// 1. The data model needs current user data
+// 2. Local history + Replay via SQLITE vs Distributed history + Replay via REDIS
+
 February 2026 - R&D
+
+CmdHub - turning SysOps Ad-Hoc nightmares into queryable, traceable, chainable, execution policies.
 
 Containerized testing:
 https://pkg.go.dev/github.com/testcontainers/testcontainers-go
@@ -209,3 +244,26 @@ Study this pattern*
 | Observability depth   | Low            | High                   |
 
 */
+//https://www.notion.so/Features-and-Thoughts-30f568a8fe2380ca991ee486750bd3b3
+
+//2-27
+//The key features that I'm not seeing elsewhere are:
+//Logging and audit trail of commands ran with lineage and persistence with security checks (scrubbing)
+//Running commands remotely or in a container - we have existing examples of
+
+/*
+Current Architecture as of Early Alpha:
+				 				 __api/REST  JSON/Web UI
+Runner (SSH/HTTP/Process) <--> CmdLine Tool / RPC Call --> 	 ^
+	>	Service --> (Execute/Log/Persist/Track)--> Output/StdOut        ^^
+						--
+				SQLITE		---	   RDBMS/IOFile
+				DUCKDB		---------> Audit (Lineage)--->SQL-->Reports
+*/
+
+//March, next steps
+//We have our focus - we are going to focus on the auditing/persistance layer, not re-invent the wheel for
+//command running. We are forking the execx api (https://github.com/goforj/execx)
+//We are building a cmdline tool - "hub" which registers commands and wraps them with lineage tracking and
+//persistence.
+//(March 7th) - Next step is swap out default Command implementation for execx then test the runner and services.

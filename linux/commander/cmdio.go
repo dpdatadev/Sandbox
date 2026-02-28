@@ -58,6 +58,9 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	for cmd := range commandLines {
 		//TODO, eventually handling TOML or YAML or Proc files, not plain .txt
 		//ignore commented out commands
+		//2/28 - after we implement the execx api, we will use the yaml loader to dump
+		//commands from the registry (hub reg "cmd" --bucket=default --store=sqlite)
+		//to a new yaml file - or just create a YAML file from the get go.
 		if !strings.HasPrefix(cmd, "//") && !strings.HasPrefix(cmd, "##") { //TODO, test coverage
 			cmdFields := strings.Fields(cmd)
 			cmdName := cmdFields[0]
