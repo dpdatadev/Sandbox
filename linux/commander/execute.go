@@ -75,7 +75,7 @@ func (e *LocalExecutor) Execute(
 	ctx context.Context,
 	cmd *Command, debug bool,
 ) (*ExecutionResult, error) {
-
+	//swap out with execx based code (fluent API etc., see notes)
 	start := time.Now()
 
 	c := exec.CommandContext(ctx, cmd.Name, cmd.Args...)

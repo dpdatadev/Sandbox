@@ -267,3 +267,7 @@ Runner (SSH/HTTP/Process) <--> CmdLine Tool / RPC Call --> 	 ^
 //We are building a cmdline tool - "hub" which registers commands and wraps them with lineage tracking and
 //persistence.
 //(March 7th) - Next step is swap out default Command implementation for execx then test the runner and services.
+
+//3-1
+//"Result" in execx will replace "ExecutionResult"
+//We keep the same Command persistence model

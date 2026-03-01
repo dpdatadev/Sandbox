@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os/user"
 	"strings"
 	"time"
 
@@ -53,6 +54,17 @@ type Command struct {
 
 func (c *Command) ExecString() string {
 	return c.Name + " " + strings.Join(c.Args, " ")
+}
+
+func (c *Command) GetUserName() string {
+	current_user, err := user.Current()
+	if err != nil {
+		PrintStdErr("USER LOOKUP err OCCURRED: ", err)
+	}
+
+	username := current_user.Username
+
+	return username
 }
 
 func NewCommand(name string, args []string, notes string) *Command {

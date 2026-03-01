@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/goforj/execx"
 	"github.com/google/uuid"
 )
 
@@ -146,6 +147,11 @@ func setupConsoleCommandTestSuite() (CommandRunner, []*Command) {
 	consoleCommandRunner := NewCommandRunner(CONSOLE_RUN)
 
 	return consoleCommandRunner, commands
+}
+
+// TODO - execX test
+func ConsoleSqliteExecxFromFileTest() {
+	panic("not impl")
 }
 
 // Orchestrate sample commands with ConsoleRunner for Testing
@@ -481,6 +487,42 @@ func mainTestSuite() {
 	//ConsoleSqliteCommandFileTest(LOCAL_SQLITE_CMD_DB5, LOCAL_SQLITE_CMD_TABLE)
 	//ConsoleInMemoryCommandTest()
 	//ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
+}
+
+func execxTest() {
+	// Run executes the command and returns the result and any error.
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	res, err := execx.
+		Command("printf", "hello\nworld\n").
+		//Env("MODE=demo").
+		WithContext(ctx).
+		OnStdout(func(line string) {
+			PrintDebug("OUT:", line)
+		}).
+		OnStderr(func(line string) {
+			PrintStdErr("ERR:", line)
+		}).
+		Run()
+
+	if !res.OK() {
+		PrintFailure("command failed: %v", err)
+	}
+
+	fmt.Printf("Stdout: %q\n", res.Stdout)
+	fmt.Printf("Stderr: %q\n", res.Stderr)
+	fmt.Printf("ExitCode: %d\n", res.ExitCode)
+	fmt.Printf("Error: %v\n", res.Err)
+	fmt.Printf("Duration: %v\n", res.Duration)
+	// OUT: HELLO
+	// OUT: WORLD
+	// Stdout: "HELLO\nWORLD\n"
+	// Stderr: ""
+	// ExitCode: 0
+	// Error: <nil>
+	// Duration: 10.123456ms
 }
 
 func runTests() {
