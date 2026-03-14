@@ -1,12 +1,16 @@
-uname -a
-ip addr
-ip neigh
-ifconfig
-uptime
-nmap -sn 192.168.1.0/24
-arp -a
-ps aux
-tcpdump -D
-dmesg
-service redis status
-service docker status
+lynx -dump -nolist https://news.ycombinator.com
+##/bin/sh /home/dpauley/Documents/Code/Apps/Go/scraper_server/linkserver
+##/bin/sh af_podcasts.sh
+##/bin/sh daily_readings.sh
+//uname -a
+//ip addr
+//ip neighbor show
+//ifconfig
+//uptime
+//nmap -sn 192.168.1.0/24
+//arp -a
+//ps aux
+//tcpdump -D
+//dmesg
+//service redis status
+//service docker status

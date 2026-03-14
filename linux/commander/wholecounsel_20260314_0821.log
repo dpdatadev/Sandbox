@@ -1,0 +1,10 @@
+# Logfile created on 2026-03-14 08:21:30 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:30.224910 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lordofspirits/", text="lordofspirits">
+I, [2026-03-14T08:21:30.239085 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/", text="wholecounsel">
+I, [2026-03-14T08:21:30.254450 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/?page=2", text="wholecounsel">
+I, [2026-03-14T08:21:30.270070 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/?page=97", text="wholecounsel">
+I, [2026-03-14T08:21:30.285291 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/numbers-10/", text="wholecounsel/numbers-10">
+I, [2026-03-14T08:21:30.299379 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/numbers-11/", text="wholecounsel/numbers-11">
+I, [2026-03-14T08:21:30.313701 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/numbers-7/", text="wholecounsel/numbers-7">
+I, [2026-03-14T08:21:30.328988 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/numbers-8/", text="wholecounsel/numbers-8">
+I, [2026-03-14T08:21:30.343436 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/numbers-9/", text="wholecounsel/numbers-9">

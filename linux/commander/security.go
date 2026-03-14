@@ -25,7 +25,7 @@ var DefaultDenyCommands = []string{
 	"mount",
 	"umount",
 	"iptables",
-	"cat",
+	//"cat",
 	"echo", // users do not directly ask for what they want to see, valid commands/programs control output
 }
 

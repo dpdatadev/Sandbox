@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-14 08:21:27 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:27.710468 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/", text="pathacademy">
+I, [2026-03-14T08:21:27.727571 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/?page=13", text="pathacademy">
+I, [2026-03-14T08:21:27.743035 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/?page=2", text="pathacademy">
+I, [2026-03-14T08:21:27.759142 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/biological-paradigms/", text="pathacademy/biological-paradigms">
+I, [2026-03-14T08:21:27.774837 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/the-secular-and-the-modern-round-2/", text="pathacademy/the-secular-and-the-modern-round-2">
+I, [2026-03-14T08:21:27.791595 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/the-secular-and-the-modern/", text="pathacademy/the-secular-and-the-modern">
+I, [2026-03-14T08:21:27.807357 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/when_i_ponder_the_heavens_the_moral_structure_of_the_cosmos/", text="pathacademy/when_i_ponder_the_heavens_the_moral_structure_of_the_cosmos">
+I, [2026-03-14T08:21:27.823267 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/wwjr-the-bible-of-the-first-century-and-sola-scriptura/", text="pathacademy/wwjr-the-bible-of-the-first-century-and-sola-scriptura">

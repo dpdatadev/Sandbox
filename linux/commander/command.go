@@ -10,6 +10,7 @@ import (
 
 // Reporting the status of the command
 const (
+	StatusTracked  = "LINEAGE"
 	StatusPending  = "PENDING"
 	StatusRunning  = "RUNNING"
 	StatusSuccess  = "SUCCESS"
@@ -18,7 +19,7 @@ const (
 )
 
 const (
-	_ = iota
+	CommandType_LIN = iota //lineage object = 0
 	CommandType_NIL
 	CommandType_TEXT
 	CommandType_WEB

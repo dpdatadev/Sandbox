@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -206,6 +207,7 @@ type DBHistoryService struct {
 // checking a different table/output.
 type CommandLineage struct {
 	ID      string
+	Name    string
 	BatchID string
 
 	// Execution lineage
@@ -249,6 +251,7 @@ func (hs *DBHistoryService) BeginChain() []*CommandLineage {
 
 		lineageObject := &CommandLineage{
 			ID:        cmd.ID.String(),
+			Name:      cmd.Name,
 			BatchID:   batchID,
 			Status:    cmd.Status,
 			Stdout:    cmd.Stdout,
@@ -291,7 +294,11 @@ func (hs *DBHistoryService) LinkChain(
 }
 
 // Write lineage graph to file
-func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string) error {
+func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileName string, persist bool) error {
+
+	if len(lineage) == 0 {
+		return errors.New("cannot persist lineage: slice empty\n")
+	}
 
 	f := (&CmdIOHelper{}).GetFileWrite(lineageFileName)
 	if f == nil {
@@ -301,71 +308,54 @@ func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileNam
 	}
 	defer f.Close()
 
+	var lineageBuilder strings.Builder
+
 	for _, cmd := range lineage {
-		line := fmt.Sprintf("ID: %s, BatchID: %s, PrevID: %v, NextID: %v, Status: %s, RootID: %v\n",
-			cmd.ID, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.Status, cmd.RootID)
-		_, err := f.WriteString(line)
-		if err != nil {
-			return err
-		}
+		line := fmt.Sprintf("ID: %s, Name: %s, BatchID: %s, PrevID: %v, NextID: %v, Status: %s, RootID: %s\n",
+			cmd.ID, cmd.Name, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.Status, cmd.RootID)
+		lineageBuilder.WriteString(line)
 	}
+	_, err := f.WriteString(lineageBuilder.String())
+	if err != nil {
+		return err
+	}
+
+	PrintDebug("LINEAGE COUNT: %d\n", len(lineage))
+
+	//currently a way to store lineage in same table as commands (temporary)
+	if persist {
+		PrintIdentity("Saving / Tracking %d items in DB\n", len(lineage))
+		rootID := lineage[0].RootID
+		PrintDebug(lineageBuilder.String())
+		return hs.persistLineage(rootID, lineageBuilder.String())
+	}
+
 	return nil
 }
 
-//TODO - implement DB persistence for lineage tracking objects (could be a separate table with foreign key to Commands or a JSON blob in Commands table)
-//BETA
-//Database lineage will come
-/*
-func (dbs *DBHistoryService) WalkForward(
-	ctx context.Context,
-	startID string,
-) ([]*Command, error) {
+func (hs *DBHistoryService) persistLineage(rootID string, lineageLog string) error {
+	PrintDebug("[=]Begin DB LINLOG[=]\n")
+	var helper CmdIOHelper
+	ctx, _ := helper.GetDefaultContext()
+	cmd := NewCommand("lineage_execution_object", []string{rootID}, lineageLog)
+	cmd.Status = StatusTracked
 
-	var lineage []*Command
-	currentID := startID
-
-	for {
-		cmd, err := dbs.Store.GetByID(ctx, currentID)
-		if err != nil {
-			return nil, err
-		}
-
-		lineage = append(lineage, cmd)
-
-		if cmd.NextID == nil {
-			break
-		}
-
-		currentID = *cmd.NextID
+	if hs.Store == nil {
+		err := errors.New("[!!]STORE IS NIL[!!]")
+		PrintFailure(err.Error())
+		return errors.New(err.Error())
 	}
 
-	return lineage, nil
+	err := hs.Store.Create(ctx, cmd)
+
+	PrintDebug("[-]END DB LINLOG[-]\n")
+
+	if err != nil {
+		PrintFailure("PERSIST LINEAGE FAILED: %s\n", err.Error())
+		return err
+	}
+
+	PrintSuccess("[+]LINLOG COMPLETE[+]\n")
+
+	return nil
 }
-
-
-func (dbs *DBHistoryService) WalkBackward(
-    ctx context.Context,
-    startID string,
-) ([]*Command, error) {
-
-    var lineage []*Command
-    currentID := startID
-
-    for {
-        cmd, err := dbs.Store.GetByID(ctx, currentID)
-        if err != nil {
-            return nil, err
-        }
-
-        lineage = append(lineage, cmd)
-
-        if cmd.PrevID == nil {
-            break
-        }
-
-        currentID = *cmd.PrevID
-    }
-
-    return lineage, nil
-}
-*/

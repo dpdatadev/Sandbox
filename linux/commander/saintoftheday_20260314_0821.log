@@ -1,0 +1,13 @@
+# Logfile created on 2026-03-14 08:21:29 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:29.104021 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptures/", text="dailyscriptures">
+I, [2026-03-14T08:21:29.119637 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/", text="dailyscriptureskids">
+I, [2026-03-14T08:21:29.134650 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/hiddensaints/", text="hiddensaints">
+I, [2026-03-14T08:21:29.149710 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/", text="saintoftheday">
+I, [2026-03-14T08:21:29.163134 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=1100", text="saintoftheday">
+I, [2026-03-14T08:21:29.177943 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=2", text="saintoftheday">
+I, [2026-03-14T08:21:29.192467 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/martyrs-codratus-quadratus-and-those-with-him-258-march-10/", text="saintoftheday/martyrs-codratus-quadratus-and-those-with-him-258-march-10">
+I, [2026-03-14T08:21:29.206375 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-benedict-of-nursia-abbot-547-march-14/", text="saintoftheday/st-benedict-of-nursia-abbot-547-march-14">
+I, [2026-03-14T08:21:29.220153 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-gregory-the-great-the-dialogist-pope-of-rome-604-march-12/", text="saintoftheday/st-gregory-the-great-the-dialogist-pope-of-rome-604-march-12">
+I, [2026-03-14T08:21:29.234985 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-sophronios-patriarch-of-jerusalem-638-march-11/", text="saintoftheday/st-sophronios-patriarch-of-jerusalem-638-march-11">
+I, [2026-03-14T08:21:29.249532 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/translation-of-the-relics-847-of-st-nicephoros-patriarch-of-constantinople-827-march-13/", text="saintoftheday/translation-of-the-relics-847-of-st-nicephoros-patriarch-of-constantinople-827-march-13">
+I, [2026-03-14T08:21:29.263965 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/thepath/", text="thepath">

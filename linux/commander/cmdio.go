@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/google/uuid"
@@ -22,6 +24,13 @@ var (
 )
 
 type CmdIOHelper struct{}
+
+func (io *CmdIOHelper) GetDefaultContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(
+		context.Background(),
+		10*time.Second,
+	)
+}
 
 func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 
@@ -55,14 +64,16 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	commandData := string(buf[:n])
 	commands := make([]*Command, 0, len(commandData))
 	commandLines := strings.SplitSeq(commandData, "\n")
+	PrintDebug("BEGIN ITERATION on data: %v\n", commandLines)
 	for cmd := range commandLines {
 		//TODO, eventually handling TOML or YAML or Proc files, not plain .txt
 		//ignore commented out commands
 		//2/28 - after we implement the execx api, we will use the yaml loader to dump
 		//commands from the registry (hub reg "cmd" --bucket=default --store=sqlite)
 		//to a new yaml file - or just create a YAML file from the get go.
-		if !strings.HasPrefix(cmd, "//") && !strings.HasPrefix(cmd, "##") { //TODO, test coverage
+		if !strings.HasPrefix(cmd, "//") && !strings.HasPrefix(cmd, "##") { //TODO, fix in beta blank lines cause index out of range
 			cmdFields := strings.Fields(cmd)
+			PrintDebug("DEBUG: %v\n", cmdFields)
 			cmdName := cmdFields[0]
 			cmdArgs := cmdFields[1:]
 			cmdNotes := fmt.Sprintf("Ingested from %s", fileName)

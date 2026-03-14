@@ -1,6 +1,6 @@
 package main
 
-//todo - split into separate files
+//TODO - split into separate files
 
 import (
 	"context"
@@ -21,6 +21,9 @@ import (
 //Now if the UUID library gets changed, I'll have to update a crap load of code.
 //In the database, the UUID's are stored as string representations of UUID's, so string
 //should be all the caller needs to work with.
+
+//TODO, create schema helper to EnsureCommandTableCreated - with any indexes etc.,
+//TODO(?), add GormStore for any DB abstraction using ORM
 
 func GetSQLITEDB(databaseName string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", fmt.Sprintf("./%s.db", databaseName)) //TODO, hanlde paths

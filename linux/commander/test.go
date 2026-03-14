@@ -93,10 +93,8 @@ func setupLocalSqliteCommandService(database *sql.DB) *CommandService {
 }
 
 func setupTimeoutContext() (context.Context, context.CancelFunc) {
-	return context.WithTimeout(
-		context.Background(),
-		10*time.Second,
-	)
+	var helper CmdIOHelper
+	return helper.GetDefaultContext()
 }
 
 // TODO
@@ -218,25 +216,35 @@ func ConsoleSqliteCommandFileTest(databaseName string, tableSQL string) {
 
 func ConsoleSqliteCommandFileWithLineageTest(databaseName string, tableSQL string) {
 
-	ctx, cancel := setupTimeoutContext()
+	ctx, cancel := setupTimeoutContext() //default background context
 
 	defer cancel()
 
-	testDb, _ := setupTestDatabase(databaseName, tableSQL)
+	testDb, _ := setupTestDatabase(databaseName, tableSQL) //local SQLITE instance with Commands table
 
 	defer testDb.Close()
 
-	svc := setupLocalSqliteCommandService(testDb)
+	sqlStore := NewSqliteCommandStore(testDb) //command service and history service SQL access
 
-	consoleCommandRunner, commands := setupConsoleCommandTestFromFileSuite()
+	exec := NewLocalExecutor() //running local OS Exec commands
 
+	// validation and security policies applied
+	svc := NewCommandService(sqlStore, exec)
+
+	consoleCommandRunner, commands := setupConsoleCommandTestFromFileSuite() // load commands from filesystem
+
+	// go cmd - fire off command go routines
 	testCommands := consoleCommandRunner.RunCommands(svc, ctx, commands, true)
 
+	//Bootstrap our history service
 	hs := &DBHistoryService{
 		AuditCommands: testCommands,
+		Store:         sqlStore,
 	}
 
+	//begin history chain
 	lineageObjects := hs.BeginChain()
+	//link objects - preserve execution order
 	err := hs.LinkChain(lineageObjects)
 
 	if err != nil {
@@ -244,11 +252,13 @@ func ConsoleSqliteCommandFileWithLineageTest(databaseName string, tableSQL strin
 		return
 	}
 
+	//dump to console
 	for _, cmd := range testCommands {
 		(&CmdIOHelper{}).ConsoleDump(cmd)
 	}
 
-	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_2)
+	//write lineage graph to file
+	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_2, true) // persist=true; also persist lineage to sqlStore
 }
 
 func testGetAllCommands() {
@@ -470,12 +480,14 @@ func lineageTest() {
 		return
 	}
 
-	for _, obj := range lineageObjects {
-		fmt.Printf("ID: %s, BatchID: %s, PrevID: %v, Status: %s, NextID: %v, RootID: %v\n",
-			obj.ID, obj.BatchID, obj.PrevID, obj.Status, obj.NextID, obj.RootID)
-	}
-
-	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_1)
+	/*
+		for _, obj := range lineageObjects {
+			fmt.Printf("ID: %s, BatchID: %s, PrevID: %v, Status: %s, NextID: %v, RootID: %v\n",
+				obj.ID, obj.BatchID, obj.PrevID, obj.Status, obj.NextID, obj.RootID)
+		}
+	*/
+	PrintDebug("[=]PROCEED TO LOG LINEAGE[=]")
+	hs.LogLineage(lineageObjects, CMD_LINEAGE_LOG_FILE_1, true)
 }
 
 // Testing

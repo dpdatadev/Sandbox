@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-14 08:21:23 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:23.427136 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/", text="comeandsee">
+I, [2026-03-14T08:21:23.441399 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/?page=2", text="comeandsee">
+I, [2026-03-14T08:21:23.455712 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/?page=84", text="comeandsee">
+I, [2026-03-14T08:21:23.470535 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/dont-fast-like-that/", text="comeandsee/dont-fast-like-that">
+I, [2026-03-14T08:21:23.485372 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/how-to-fast-for-great-lent/", text="comeandsee/how-to-fast-for-great-lent">
+I, [2026-03-14T08:21:23.500252 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/pig-or-person/", text="comeandsee/pig-or-person">
+I, [2026-03-14T08:21:23.516953 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/restoring-the-image/", text="comeandsee/restoring-the-image">
+I, [2026-03-14T08:21:23.532058 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/what-can-god-do/", text="comeandsee/what-can-god-do">

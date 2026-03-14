@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-14 08:21:23 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:23.718872 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/", text="dailyscriptureskids">
+I, [2026-03-14T08:21:23.733661 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/?page=2", text="dailyscriptureskids">
+I, [2026-03-14T08:21:23.748429 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/?page=305", text="dailyscriptureskids">
+I, [2026-03-14T08:21:23.763077 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/march-10-2026/", text="dailyscriptureskids/march-10-2026">
+I, [2026-03-14T08:21:23.777426 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/march-11-2025/", text="dailyscriptureskids/march-11-2025">
+I, [2026-03-14T08:21:23.792209 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/march-12-2026/", text="dailyscriptureskids/march-12-2026">
+I, [2026-03-14T08:21:23.806944 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/march-13-2026/", text="dailyscriptureskids/march-13-2026">
+I, [2026-03-14T08:21:23.821658 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/march-14-2026/", text="dailyscriptureskids/march-14-2026">

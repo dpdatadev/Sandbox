@@ -1,0 +1,11 @@
+# Logfile created on 2026-03-14 08:21:24 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:24.643718 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/", text="healingpresence">
+I, [2026-03-14T08:21:24.659108 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/?page=2", text="healingpresence">
+I, [2026-03-14T08:21:24.674559 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/?page=65", text="healingpresence">
+I, [2026-03-14T08:21:24.689786 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/in-every-danger-there-is-opportunity/", text="healingpresence/in-every-danger-there-is-opportunity">
+I, [2026-03-14T08:21:24.704477 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/o-holy-day/", text="healingpresence/o-holy-day">
+I, [2026-03-14T08:21:24.719678 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/one-word-in-the-present-moment/", text="healingpresence/one-word-in-the-present-moment">
+I, [2026-03-14T08:21:24.734401 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/precious-free-will/", text="healingpresence/precious-free-will">
+I, [2026-03-14T08:21:24.749312 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingpresence/the-elephant-and-the-flea/", text="healingpresence/the-elephant-and-the-flea">
+I, [2026-03-14T08:21:24.765414 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/healingunresolved/", text="healingunresolved">
+I, [2026-03-14T08:21:24.780319 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/livewiththelouhs/", text="livewiththelouhs">

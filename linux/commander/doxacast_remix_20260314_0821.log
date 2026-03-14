@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-14 08:21:23 -0500 by logger.rb/v1.7.0
+I, [2026-03-14T08:21:23.843289 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/", text="doxacast_remix">
+I, [2026-03-14T08:21:23.859469 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/?page=2", text="doxacast_remix">
+I, [2026-03-14T08:21:23.875686 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/?page=8", text="doxacast_remix">
+I, [2026-03-14T08:21:23.891239 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/android-dreams-blade-runner-and-the-facsimile-of-humanity/", text="doxacast_remix/android-dreams-blade-runner-and-the-facsimile-of-humanity">
+I, [2026-03-14T08:21:23.907186 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/are-there-no-true-knights-among-you-honor-and-goodness-in-a-knight-of-the-seven-kingdoms/", text="doxacast_remix/are-there-no-true-knights-among-you-honor-and-goodness-in-a-knight-of-the-seven-kingdoms">
+I, [2026-03-14T08:21:23.921418 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/choice-and-destiny-in-blade-runner-2049/", text="doxacast_remix/choice-and-destiny-in-blade-runner-2049">
+I, [2026-03-14T08:21:23.936408 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/good-and-evil-and-creative-chaos-in-cooperative-gaming/", text="doxacast_remix/good-and-evil-and-creative-chaos-in-cooperative-gaming">
+I, [2026-03-14T08:21:23.952338 #645529]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/doxacast_remix/heroes-just-for-one-day-an-end-to-stranger-things/", text="doxacast_remix/heroes-just-for-one-day-an-end-to-stranger-things">
