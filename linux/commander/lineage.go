@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 //container List implementation for testing/debugging and InMemory stuff
@@ -309,13 +311,15 @@ func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileNam
 	defer f.Close()
 
 	var lineageBuilder strings.Builder
+	var persistString string
 
 	for _, cmd := range lineage {
 		line := fmt.Sprintf("ID: %s, Name: %s, BatchID: %s, PrevID: %v, NextID: %v, Status: %s, RootID: %s\n",
 			cmd.ID, cmd.Name, cmd.BatchID, cmd.PrevID, cmd.NextID, cmd.Status, cmd.RootID)
 		lineageBuilder.WriteString(line)
 	}
-	_, err := f.WriteString(lineageBuilder.String())
+	persistString = lineageBuilder.String()
+	_, err := f.WriteString(persistString)
 	if err != nil {
 		return err
 	}
@@ -327,7 +331,7 @@ func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileNam
 		PrintIdentity("Saving / Tracking %d items in DB\n", len(lineage))
 		rootID := lineage[0].RootID
 		PrintDebug(lineageBuilder.String())
-		return hs.persistLineage(rootID, lineageBuilder.String())
+		return hs.persistLineage(rootID, persistString)
 	}
 
 	return nil
@@ -337,8 +341,7 @@ func (hs *DBHistoryService) persistLineage(rootID string, lineageLog string) err
 	PrintDebug("[+]Begin DB LINLOG[+]\n")
 	var helper CmdIOHelper
 	ctx, _ := helper.GetDefaultContext()
-	cmd := NewCommand("lineage_execution_object", []string{rootID}, lineageLog)
-	cmd.Status = StatusTracked
+	cmd := &Command{ID: uuid.New(), Name: fmt.Sprintf("lineage_execution_%s", rootID), Stdout: lineageLog, Status: StatusTracked, CreatedAt: time.Now().Local()}
 
 	if hs.Store == nil {
 		err := errors.New("[!!]STORE IS NIL[!!]")

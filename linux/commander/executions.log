@@ -115,3 +115,42 @@
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-14 11:04:44.668451238 -0500 CDT m=+0.667710235
+::Test Runs::Name:  lynx
+::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-14 11:04:44.011159751 -0500 CDT m=+0.010418729
+::Test Runs::Execution Ended:  2026-03-14 11:04:44.668170125 -0500 CDT m=+0.667429140
+::Test Runs::Duration:  655.946905ms
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-14 11:10:44.873422996 -0500 CDT m=+0.719451760
+::Test Runs::Name:  lynx
+::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-14 11:10:44.168565993 -0500 CDT m=+0.014594757
+::Test Runs::Execution Ended:  2026-03-14 11:10:44.873124809 -0500 CDT m=+0.719153629
+::Test Runs::Duration:  703.949183ms
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-14 11:11:27.224938412 -0500 CDT m=+0.693617302
+::Test Runs::Name:  lynx
+::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-14 11:11:26.543178073 -0500 CDT m=+0.011856963
+::Test Runs::Execution Ended:  2026-03-14 11:11:27.224655985 -0500 CDT m=+0.693335208
+::Test Runs::Duration:  680.817075ms
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
