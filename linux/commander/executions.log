@@ -89,3 +89,29 @@
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-14 10:46:25.559087565 -0500 CDT m=+0.656709844
+::Test Runs::Name:  lynx
+::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-14 10:46:24.913893096 -0500 CDT m=+0.011515375
+::Test Runs::Execution Ended:  2026-03-14 10:46:25.558694028 -0500 CDT m=+0.656316418
+::Test Runs::Duration:  644.06319ms
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-14 10:47:05.661924859 -0500 CDT m=+0.710055645
+::Test Runs::Name:  lynx
+::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-14 10:47:04.961141328 -0500 CDT m=+0.009272114
+::Test Runs::Execution Ended:  2026-03-14 10:47:05.661450543 -0500 CDT m=+0.709581329
+::Test Runs::Duration:  699.435083ms
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================

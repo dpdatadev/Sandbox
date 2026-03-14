@@ -334,7 +334,7 @@ func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileNam
 }
 
 func (hs *DBHistoryService) persistLineage(rootID string, lineageLog string) error {
-	PrintDebug("[=]Begin DB LINLOG[=]\n")
+	PrintDebug("[+]Begin DB LINLOG[+]\n")
 	var helper CmdIOHelper
 	ctx, _ := helper.GetDefaultContext()
 	cmd := NewCommand("lineage_execution_object", []string{rootID}, lineageLog)
@@ -355,7 +355,7 @@ func (hs *DBHistoryService) persistLineage(rootID string, lineageLog string) err
 		return err
 	}
 
-	PrintSuccess("[+]LINLOG COMPLETE[+]\n")
+	PrintSuccess("[=]LINLOG COMPLETE[=]\n")
 
 	return nil
 }
