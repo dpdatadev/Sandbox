@@ -32,6 +32,13 @@ func (io *CmdIOHelper) GetDefaultContext() (context.Context, context.CancelFunc)
 	)
 }
 
+func (io *CmdIOHelper) GetLongRunContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(
+		context.Background(),
+		30*time.Second,
+	)
+}
+
 func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 
 	PrintDebug("COMMAND READ[+]: %s\n", fileName)

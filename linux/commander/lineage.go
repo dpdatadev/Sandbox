@@ -4,7 +4,6 @@ package main
 
 // Lineage/tracker impl
 import (
-	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -44,46 +43,6 @@ DBCommand → insert rows
 ↓
 FileCommand → archive CSV
 */
-
-// Several ways to implement Chain tracking/lineage - DB persistence likely desired
-func (s *SQLiteCommandStore) SaveBatchHistory(
-	ctx context.Context,
-	cmds []*Command,
-) error {
-
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	stmt, err := tx.PrepareContext(ctx, `
-        INSERT INTO commands (
-            id, name, status, created_at
-        )
-        VALUES (?, ?, ?, ?)
-    `)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	defer stmt.Close()
-
-	for _, cmd := range cmds {
-		_, err := stmt.ExecContext(
-			ctx,
-			cmd.ID,
-			cmd.Name,
-			cmd.Status,
-			cmd.CreatedAt,
-		)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
-
-	return tx.Commit()
-}
 
 // //////////////////////////////////
 type SingleList[T any] interface {
@@ -194,9 +153,6 @@ type Lineage interface {
 	BeginChain() []*CommandLineage          //Step 1 - (Hydrate) - create CommandLineage objects from Command objects (copying relevant fields and adding lineage metadata)
 	LinkChain(cmds []*CommandLineage) error //Step 2 - (Chain together) - assign PrevID, NextID, RootID to CommandLineage objects to create a linked tracking chain
 	LogLineage(lineage []*CommandLineage, lineageFileName string) error
-	//Persist(ctx context.Context, cmds []*CommandLineage) error //Step 3 - save lineage tracking objects to database (or other store) for queryable lineage history
-	//WalkForward(ctx context.Context, startID string) ([]*Command, error)
-	//WalkBackward(ctx context.Context, startID string) ([]*Command, error)
 }
 
 type DBHistoryService struct {
@@ -207,6 +163,10 @@ type DBHistoryService struct {
 // TODO, beta thoughts (think on this) -- I think the second struct needs to be removed and keep PrevID and NextID on Command
 // Then any Command can easily be checked for lineage then move forward or backward instead of
 // checking a different table/output.
+
+// 3-15-2026
+// TODO, beta - we are def going to remove this Lineage struct. Right now the lineage objects are being stored in the same Command table anyway.
+// as I stated above - we will just put the PrevID and NextID fields on Command.
 type CommandLineage struct {
 	ID      string
 	Name    string
@@ -330,7 +290,7 @@ func (hs *DBHistoryService) LogLineage(lineage []*CommandLineage, lineageFileNam
 	if persist {
 		PrintIdentity("Saving / Tracking %d items in DB\n", len(lineage))
 		rootID := lineage[0].RootID
-		PrintDebug(lineageBuilder.String())
+		PrintDebug(persistString)
 		return hs.persistLineage(rootID, persistString)
 	}
 

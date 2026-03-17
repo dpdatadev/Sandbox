@@ -93,8 +93,7 @@ func setupLocalSqliteCommandService(database *sql.DB) *CommandService {
 }
 
 func setupTimeoutContext() (context.Context, context.CancelFunc) {
-	var helper CmdIOHelper
-	return helper.GetDefaultContext()
+	return (&CmdIOHelper{}).GetLongRunContext()
 }
 
 // TODO
@@ -325,6 +324,7 @@ type CommandDTO struct {
 	Args      string `json:"args"`
 	Notes     string `json:"notes"`
 	Status    string `json:"status"`
+	User      string `json:"username"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -339,6 +339,7 @@ func NewCmdDTO(cmd *Command) (*CommandDTO, error) {
 		Name:      cmd.ExecString(),
 		Notes:     cmd.Notes,
 		Status:    cmd.Status,
+		User:      cmd.GetUserName(),
 		CreatedAt: cmd.CreatedAt.String(),
 	}, nil
 }
@@ -496,6 +497,8 @@ func mainTestSuite() {
 	log.SetFlags(0)
 	log.Print("mainTestSuite()::")
 	ConsoleSqliteCommandFileWithLineageTest(LOCAL_SQLITE_CMD_DB4, LOCAL_SQLITE_CMD_TABLE)
+	//time.Sleep(10 * time.Second)
+	//serverTest()
 	//ConsoleSqliteCommandFileTest(LOCAL_SQLITE_CMD_DB5, LOCAL_SQLITE_CMD_TABLE)
 	//ConsoleInMemoryCommandTest()
 	//ConsoleSqliteCommandTest(LOCAL_SQLITE_CMD_DB1, LOCAL_SQLITE_CMD_TABLE)
@@ -538,10 +541,10 @@ func execxTest() {
 }
 
 func runTests() {
-	//log.SetPrefix("::APP::")
-	//log.SetFlags(0)
-	//log.Print("main()::")
-	//log.Println("DPDIGITAL,LLC::COMMANDER::<INIT>::")
+	log.SetPrefix("::APP::")
+	log.SetFlags(0)
+	log.Print("main()::")
+	log.Println("DPDIGITAL,LLC::COMMANDER::<INIT>::")
 	mainTestSuite()
 }
 
