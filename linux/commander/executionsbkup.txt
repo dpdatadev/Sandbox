@@ -1,52 +1,52 @@
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-19 06:48:04.457384189 -0500 CDT m=+0.622465549
+::Test Runs::Time:  2026-03-16 06:40:35.103508469 -0500 CDT m=+0.826939498
 ::Test Runs::Name:  lynx
 ::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
 ::Test Runs::Notes:  Ingested from proc.txt
 ::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-19 06:48:03.861996426 -0500 CDT m=+0.027077823
-::Test Runs::Execution Ended:  2026-03-19 06:48:04.457187836 -0500 CDT m=+0.622269214
-::Test Runs::Duration:  571.562022ms
+::Test Runs::Command Started:  2026-03-16 06:40:34.339551111 -0500 CDT m=+0.062982159
+::Test Runs::Execution Ended:  2026-03-16 06:40:35.102876869 -0500 CDT m=+0.826307898
+::Test Runs::Duration:  762.842308ms
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-19 06:48:05.809712937 -0500 CDT m=+1.974794316
+::Test Runs::Time:  2026-03-16 06:40:35.916207727 -0500 CDT m=+1.639638756
 ::Test Runs::Name:  /bin/sh
 ::Test Runs::Args:  [daily_readings.sh]
 ::Test Runs::Notes:  Ingested from proc.txt
 ::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-19 06:48:03.908911421 -0500 CDT m=+0.073992799
-::Test Runs::Execution Ended:  2026-03-19 06:48:05.809570343 -0500 CDT m=+1.974651722
-::Test Runs::Duration:  1.899833861s
+::Test Runs::Command Started:  2026-03-16 06:40:34.34302267 -0500 CDT m=+0.066453717
+::Test Runs::Execution Ended:  2026-03-16 06:40:35.916109004 -0500 CDT m=+1.639540089
+::Test Runs::Duration:  1.571155905s
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-19 06:48:07.720414459 -0500 CDT m=+3.885495819
+::Test Runs::Time:  2026-03-16 06:40:37.150867592 -0500 CDT m=+2.874298621
 ::Test Runs::Name:  nmap
 ::Test Runs::Args:  [-sn 192.168.1.0/24]
 ::Test Runs::Notes:  Ingested from proc.txt
 ::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-19 06:48:03.918387531 -0500 CDT m=+0.083468928
-::Test Runs::Execution Ended:  2026-03-19 06:48:07.720313384 -0500 CDT m=+3.885394744
-::Test Runs::Duration:  3.798622031s
+::Test Runs::Command Started:  2026-03-16 06:40:34.355032421 -0500 CDT m=+0.078463468
+::Test Runs::Execution Ended:  2026-03-16 06:40:37.150755109 -0500 CDT m=+2.874186194
+::Test Runs::Duration:  2.794591583s
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-19 06:48:09.816081331 -0500 CDT m=+5.981162691
+::Test Runs::Time:  2026-03-16 06:40:56.24130995 -0500 CDT m=+21.964740998
 ::Test Runs::Name:  /bin/sh
 ::Test Runs::Args:  [af_podcasts.sh]
 ::Test Runs::Notes:  Ingested from proc.txt
-::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-19 06:48:03.898918769 -0500 CDT m=+0.064000147
-::Test Runs::Execution Ended:  2026-03-19 06:48:09.815862662 -0500 CDT m=+5.980944041
-::Test Runs::Duration:  5.916288129s
-::Test Runs::ExitCode:  0
+::Test Runs::Status:  FAILED
+::Test Runs::Command Started:  2026-03-16 06:40:34.357799675 -0500 CDT m=+0.081230722
+::Test Runs::Execution Ended:  2026-03-16 06:40:56.241081151 -0500 CDT m=+21.964512180
+::Test Runs::Duration:  21.880240533s
+::Test Runs::ExitCode:  -1
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================

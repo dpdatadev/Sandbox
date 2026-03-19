@@ -1,0 +1,13 @@
+# Logfile created on 2026-03-19 06:48:08 -0500 by logger.rb/v1.7.0
+I, [2026-03-19T06:48:08.459219 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptures/", text="dailyscriptures">
+I, [2026-03-19T06:48:08.474229 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/", text="dailyscriptureskids">
+I, [2026-03-19T06:48:08.488111 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/hiddensaints/", text="hiddensaints">
+I, [2026-03-19T06:48:08.501589 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/", text="saintoftheday">
+I, [2026-03-19T06:48:08.515875 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=1101", text="saintoftheday">
+I, [2026-03-19T06:48:08.530459 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=2", text="saintoftheday">
+I, [2026-03-19T06:48:08.545049 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/holy-apostle-aristobulus-of-the-seventy-first-bishop-of-britain-1st-c-march-16/", text="saintoftheday/holy-apostle-aristobulus-of-the-seventy-first-bishop-of-britain-1st-c-march-16">
+I, [2026-03-19T06:48:08.559017 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/holy-martyr-alexander-270-275-march-15/", text="saintoftheday/holy-martyr-alexander-270-275-march-15">
+I, [2026-03-19T06:48:08.573873 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-alexis-the-man-of-god-411-march-17/", text="saintoftheday/st-alexis-the-man-of-god-411-march-17">
+I, [2026-03-19T06:48:08.588228 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-ananias-aninus-the-wonderworker-march-18/", text="saintoftheday/st-ananias-aninus-the-wonderworker-march-18">
+I, [2026-03-19T06:48:08.603053 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-benedict-of-nursia-abbot-547-march-14/", text="saintoftheday/st-benedict-of-nursia-abbot-547-march-14">
+I, [2026-03-19T06:48:08.617713 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/thepath/", text="thepath">

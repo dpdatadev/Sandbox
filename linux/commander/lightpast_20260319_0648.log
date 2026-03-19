@@ -1,0 +1,10 @@
+# Logfile created on 2026-03-19 06:48:07 -0500 by logger.rb/v1.7.0
+I, [2026-03-19T06:48:07.273524 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/", text="lightpast">
+I, [2026-03-19T06:48:07.287768 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/?page=2", text="lightpast">
+I, [2026-03-19T06:48:07.301647 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/?page=42", text="lightpast">
+I, [2026-03-19T06:48:07.316206 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/cleaning-up-michael-viiis-mess-the-council-of-blachernae-part-1/", text="lightpast/cleaning-up-michael-viiis-mess-the-council-of-blachernae-part-1">
+I, [2026-03-19T06:48:07.330985 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/michael-viii-palaeologos-and-the-byzantine-dilemma/", text="lightpast/michael-viii-palaeologos-and-the-byzantine-dilemma">
+I, [2026-03-19T06:48:07.345145 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/the-aftermath-of-the-council-of-lyons/", text="lightpast/the-aftermath-of-the-council-of-lyons">
+I, [2026-03-19T06:48:07.358938 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/the-faith-of-the-orthodox-the-faith-of-blachernae/", text="lightpast/the-faith-of-the-orthodox-the-faith-of-blachernae">
+I, [2026-03-19T06:48:07.373549 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lightpast/the-political-union-of-lyons/", text="lightpast/the-political-union-of-lyons">
+I, [2026-03-19T06:48:07.388787 #1218140]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/pathacademy/", text="pathacademy">
