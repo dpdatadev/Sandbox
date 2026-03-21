@@ -319,6 +319,7 @@ func (hs *DBHistoryService) persistLineage(rootID string, lineageLog string) err
 	}
 
 	PrintSuccess("[=]LINLOG COMPLETE[=]\n")
+	PrintSuccess("\nRAN AS USER:: %s\n", cmd.GetUserName())
 
 	return nil
 }

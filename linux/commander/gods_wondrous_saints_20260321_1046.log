@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-21 10:46:18 -0500 by logger.rb/v1.7.0
+I, [2026-03-21T10:46:18.221216 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/", text="gods_wondrous_saints">
+I, [2026-03-21T10:46:18.236592 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/?page=2", text="gods_wondrous_saints">
+I, [2026-03-21T10:46:18.250500 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/?page=8", text="gods_wondrous_saints">
+I, [2026-03-21T10:46:18.264170 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/st-haralambos-of-magnesia/", text="gods_wondrous_saints/st-haralambos-of-magnesia">
+I, [2026-03-21T10:46:18.278361 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/st-innocent-of-alaska/", text="gods_wondrous_saints/st-innocent-of-alaska">
+I, [2026-03-21T10:46:18.292703 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/st-maximus-the-confessor/", text="gods_wondrous_saints/st-maximus-the-confessor">
+I, [2026-03-21T10:46:18.306816 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/st-photini-the-samaritan-woman/", text="gods_wondrous_saints/st-photini-the-samaritan-woman">
+I, [2026-03-21T10:46:18.320633 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/gods_wondrous_saints/sundays-of-lent/", text="gods_wondrous_saints/sundays-of-lent">

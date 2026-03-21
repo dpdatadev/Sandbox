@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-21 10:46:16 -0500 by logger.rb/v1.7.0
+I, [2026-03-21T10:46:16.921042 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/", text="filledwithless">
+I, [2026-03-21T10:46:16.938173 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/?page=12", text="filledwithless">
+I, [2026-03-21T10:46:16.951952 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/?page=2", text="filledwithless">
+I, [2026-03-21T10:46:16.965963 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/acquiring-peace-with-the-6-ds-of-faith-based-goal-setting/", text="filledwithless/acquiring-peace-with-the-6-ds-of-faith-based-goal-setting">
+I, [2026-03-21T10:46:16.979961 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/aging-time-and-living-in-the-present/", text="filledwithless/aging-time-and-living-in-the-present">
+I, [2026-03-21T10:46:16.993860 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/becoming-myrrbearers/", text="filledwithless/becoming-myrrbearers">
+I, [2026-03-21T10:46:17.009648 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/waiting-with-purpose-and-hope/", text="filledwithless/waiting-with-purpose-and-hope">
+I, [2026-03-21T10:46:17.023622 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/filledwithless/whatever-god/", text="filledwithless/whatever-god">

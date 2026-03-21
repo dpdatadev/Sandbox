@@ -1,0 +1,5 @@
+# Logfile created on 2026-03-21 10:46:28 -0500 by logger.rb/v1.7.0
+I, [2026-03-21T10:46:28.010226 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/shine-your-light/", text="shine-your-light">
+I, [2026-03-21T10:46:28.028064 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/shine-your-light/noahs-rainbow/", text="shine-your-light/noahs-rainbow">
+I, [2026-03-21T10:46:28.041436 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/shine-your-light/shining-your-light/", text="shine-your-light/shining-your-light">
+I, [2026-03-21T10:46:28.054572 #1939047]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/shine-your-light/wonderful-worms/", text="shine-your-light/wonderful-worms">
