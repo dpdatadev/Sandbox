@@ -30,6 +30,7 @@ type JsonErrorResponse struct {
 	Message string `json:"message"`
 }
 
+// TODO, should v be a pointer? what is returned?
 func wJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(status)

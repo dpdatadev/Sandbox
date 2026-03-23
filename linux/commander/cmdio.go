@@ -71,7 +71,8 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 	commandData := string(buf[:n])
 	commands := make([]*Command, 0, len(commandData))
 	commandLines := strings.SplitSeq(commandData, "\n")
-	PrintDebug("BEGIN ITERATION on data: %v\n", commandLines)
+	PrintDebug("Begin Iteration on command file: %s", fileName)
+	PrintDebug("DATA START: %v\n", commandLines)
 	for cmd := range commandLines {
 		//TODO, eventually handling TOML or YAML or Proc files, not plain .txt
 		//ignore commented out commands
@@ -82,11 +83,15 @@ func (io *CmdIOHelper) ParseCommands(fileName string) []*Command {
 			cmdFields := strings.Fields(cmd)
 			PrintDebug("DEBUG: %v\n", cmdFields)
 			cmdName := cmdFields[0]
+			if strings.ToLower(cmdName) == "sleep" || strings.ToLower(cmdName) == "pause" {
+				PrintDebug("%s => SHORT BREAK BETWEEN COMMANDS...\n", cmdName)
+				time.Sleep(5 * time.Second)
+			}
 			cmdArgs := cmdFields[1:]
 			cmdNotes := fmt.Sprintf("Ingested from %s", fileName)
 			command := NewCommand(cmdName, cmdArgs, cmdNotes)
 			commands = append(commands, command)
-			PrintDebug("Ingested Command: %s, Args: %v\n", cmdName, cmdArgs)
+			PrintIdentity("Ingested Command: %s, Args: %v\n", cmdName, cmdArgs)
 		}
 	}
 

@@ -1,0 +1,14 @@
+# Logfile created on 2026-03-22 17:13:08 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:08.718890 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/afdocumentaries/", text="afdocumentaries">
+I, [2026-03-22T17:13:08.734868 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/chapters/", text="chapters">
+I, [2026-03-22T17:13:08.759358 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/commentaries/", text="commentaries">
+I, [2026-03-22T17:13:08.773067 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/contentcreators/", text="contentcreators">
+I, [2026-03-22T17:13:08.787242 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/exlibris/", text="exlibris">
+I, [2026-03-22T17:13:08.801885 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/", text="features">
+I, [2026-03-22T17:13:08.816231 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/?page=135", text="features">
+I, [2026-03-22T17:13:08.830051 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/?page=2", text="features">
+I, [2026-03-22T17:13:08.844364 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/a-saints-guide-to-praying-with-your-feet-w-amber-prather/", text="features/a-saints-guide-to-praying-with-your-feet-w-amber-prather">
+I, [2026-03-22T17:13:08.859477 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/lets-build-our-church-w-nicholas-malara/", text="features/lets-build-our-church-w-nicholas-malara">
+I, [2026-03-22T17:13:08.875857 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/prayers-in-the-dark-w-fr-lawrence-farley/", text="features/prayers-in-the-dark-w-fr-lawrence-farley">
+I, [2026-03-22T17:13:08.892766 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/the-order-of-saint-ignatius-its-history-structure-and-mission/", text="features/the-order-of-saint-ignatius-its-history-structure-and-mission">
+I, [2026-03-22T17:13:08.907936 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/features/the-voyage-of-saint-brendan-w-mike-stonelake/", text="features/the-voyage-of-saint-brendan-w-mike-stonelake">

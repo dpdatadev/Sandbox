@@ -1,8 +1,10 @@
 
-::Element Link::https://www.oca.org/readings/daily/2026/03/21/1::Element Text::1 Corinthians 15:47-57::
+::Element Link::https://www.oca.org/readings/daily/2026/03/22/1::Element Text::John 20:11-18::
 
-::Element Link::https://www.oca.org/readings/daily/2026/03/21/2::Element Text::John 5:24-30::
+::Element Link::https://www.oca.org/readings/daily/2026/03/22/2::Element Text::Ephesians 5:9-19::
 
-::Element Link::https://www.oca.org/readings/daily/2026/03/21/3::Element Text::Hebrews 6:9-12::
+::Element Link::https://www.oca.org/readings/daily/2026/03/22/3::Element Text::Matthew 4:25-5:12::
 
-::Element Link::https://www.oca.org/readings/daily/2026/03/21/4::Element Text::Mark 7:31-37::
+::Element Link::https://www.oca.org/readings/daily/2026/03/22/4::Element Text::Hebrews 6:13-20::
+
+::Element Link::https://www.oca.org/readings/daily/2026/03/22/5::Element Text::Mark 9:17-31::

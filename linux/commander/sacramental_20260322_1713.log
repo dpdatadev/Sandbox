@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-22 17:13:10 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:10.814182 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/", text="sacramental">
+I, [2026-03-22T17:13:10.830743 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/?page=2", text="sacramental">
+I, [2026-03-22T17:13:10.846068 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/?page=31", text="sacramental">
+I, [2026-03-22T17:13:10.861262 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/blessings-in-brokenness/", text="sacramental/blessings-in-brokenness">
+I, [2026-03-22T17:13:10.884054 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/facing-uncomfortable-truths/", text="sacramental/facing-uncomfortable-truths">
+I, [2026-03-22T17:13:10.899444 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/lessons-from-the-corporate-world/", text="sacramental/lessons-from-the-corporate-world">
+I, [2026-03-22T17:13:10.916565 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/living-the-abundant-life/", text="sacramental/living-the-abundant-life">
+I, [2026-03-22T17:13:10.932095 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/sacramental/pragmatism-that-kills/", text="sacramental/pragmatism-that-kills">

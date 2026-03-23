@@ -1,0 +1,1 @@
+ruby ~/Documents/Code/Scrapers/ruby_web_scrapes/daily_readings.rb

@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-22 17:13:07 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:08.012832 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/", text="comeandsee">
+I, [2026-03-22T17:13:08.029946 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/?page=2", text="comeandsee">
+I, [2026-03-22T17:13:08.045388 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/?page=84", text="comeandsee">
+I, [2026-03-22T17:13:08.060771 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/dont-fast-like-that/", text="comeandsee/dont-fast-like-that">
+I, [2026-03-22T17:13:08.076330 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/how-to-fast-for-great-lent/", text="comeandsee/how-to-fast-for-great-lent">
+I, [2026-03-22T17:13:08.092243 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/namby-pamby-religion-yuk/", text="comeandsee/namby-pamby-religion-yuk">
+I, [2026-03-22T17:13:08.108131 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/pig-or-person/", text="comeandsee/pig-or-person">
+I, [2026-03-22T17:13:08.123533 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/comeandsee/restoring-the-image/", text="comeandsee/restoring-the-image">

@@ -1,52 +1,78 @@
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-21 10:46:09.60016983 -0500 CDT m=+0.705212754
-::Test Runs::Name:  lynx
-::Test Runs::Args:  [-dump -nolist https://news.ycombinator.com]
-::Test Runs::Notes:  Ingested from proc.txt
-::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-21 10:46:09.00560627 -0500 CDT m=+0.110649361
-::Test Runs::Execution Ended:  2026-03-21 10:46:09.599990587 -0500 CDT m=+0.705033567
-::Test Runs::Duration:  593.676087ms
-::Test Runs::ExitCode:  0
-::Test Runs::::END EXECUTION::
-::Test Runs::===========================================================================================
-::Test Runs::===========================================================================================
-::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-21 10:46:11.164152929 -0500 CDT m=+2.269195853
+::Test Runs::Time:  2026-03-22 17:13:07.223516205 -0500 CDT m=+0.895663088
 ::Test Runs::Name:  /bin/sh
-::Test Runs::Args:  [daily_readings.sh]
+::Test Runs::Args:  [scrapeortho.sh]
 ::Test Runs::Notes:  Ingested from proc.txt
 ::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-21 10:46:08.959774151 -0500 CDT m=+0.064817093
-::Test Runs::Execution Ended:  2026-03-21 10:46:11.163937778 -0500 CDT m=+2.268980702
-::Test Runs::Duration:  2.203587251s
+::Test Runs::Command Started:  2026-03-22 17:13:06.34039348 -0500 CDT m=+0.012540344
+::Test Runs::Execution Ended:  2026-03-22 17:13:07.223296814 -0500 CDT m=+0.895443697
+::Test Runs::Duration:  882.251328ms
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================
 ::Test Runs::===========================================================================================
 ::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-21 10:46:14.347723007 -0500 CDT m=+5.452765949
-::Test Runs::Name:  nmap
-::Test Runs::Args:  [-sn 192.168.1.0/24]
-::Test Runs::Notes:  Ingested from proc.txt
-::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-21 10:46:09.000083843 -0500 CDT m=+0.105126804
-::Test Runs::Execution Ended:  2026-03-21 10:46:14.347596006 -0500 CDT m=+5.452638985
-::Test Runs::Duration:  5.346689765s
-::Test Runs::ExitCode:  0
-::Test Runs::::END EXECUTION::
-::Test Runs::===========================================================================================
-::Test Runs::===========================================================================================
-::Test Runs::::BEGIN EXECUTION::
-::Test Runs::Time:  2026-03-21 10:46:31.546085898 -0500 CDT m=+22.651128841
+::Test Runs::Time:  2026-03-22 17:13:09.402673357 -0500 CDT m=+3.074820221
 ::Test Runs::Name:  /bin/sh
-::Test Runs::Args:  [af_podcasts.sh]
+::Test Runs::Args:  [scrapedailyreadings.sh]
 ::Test Runs::Notes:  Ingested from proc.txt
 ::Test Runs::Status:  SUCCESS
-::Test Runs::Command Started:  2026-03-21 10:46:08.962355622 -0500 CDT m=+0.067398564
-::Test Runs::Execution Ended:  2026-03-21 10:46:31.545762043 -0500 CDT m=+22.650804985
-::Test Runs::Duration:  22.580542113s
+::Test Runs::Command Started:  2026-03-22 17:13:06.340185423 -0500 CDT m=+0.012332287
+::Test Runs::Execution Ended:  2026-03-22 17:13:09.402183741 -0500 CDT m=+3.074330605
+::Test Runs::Duration:  3.058182707s
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-22 17:13:09.47534363 -0500 CDT m=+3.147490494
+::Test Runs::Name:  /bin/sh
+::Test Runs::Args:  [scrapewikis.sh]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-22 17:13:06.361294311 -0500 CDT m=+0.033441194
+::Test Runs::Execution Ended:  2026-03-22 17:13:09.474924959 -0500 CDT m=+3.147071842
+::Test Runs::Duration:  3.103259919s
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-22 17:13:12.369437371 -0500 CDT m=+6.041584235
+::Test Runs::Name:  /bin/sh
+::Test Runs::Args:  [scrapeafpodcasts.sh]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-22 17:13:06.336782057 -0500 CDT m=+0.008928921
+::Test Runs::Execution Ended:  2026-03-22 17:13:12.369191591 -0500 CDT m=+6.041338473
+::Test Runs::Duration:  6.031691897s
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-22 17:13:13.066713068 -0500 CDT m=+6.738859932
+::Test Runs::Name:  /bin/sh
+::Test Runs::Args:  [scrapeynews.sh]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-22 17:13:06.341206284 -0500 CDT m=+0.013353167
+::Test Runs::Execution Ended:  2026-03-22 17:13:13.06654377 -0500 CDT m=+6.738690634
+::Test Runs::Duration:  6.724380606s
+::Test Runs::ExitCode:  0
+::Test Runs::::END EXECUTION::
+::Test Runs::===========================================================================================
+::Test Runs::===========================================================================================
+::Test Runs::::BEGIN EXECUTION::
+::Test Runs::Time:  2026-03-22 17:44:17.928329455 -0500 CDT m=+1.132626539
+::Test Runs::Name:  /bin/sh
+::Test Runs::Args:  [scrapeoct.sh]
+::Test Runs::Notes:  Ingested from proc.txt
+::Test Runs::Status:  SUCCESS
+::Test Runs::Command Started:  2026-03-22 17:44:16.8019982 -0500 CDT m=+0.006295302
+::Test Runs::Execution Ended:  2026-03-22 17:44:17.925998192 -0500 CDT m=+1.130295294
+::Test Runs::Duration:  1.123179372s
 ::Test Runs::ExitCode:  0
 ::Test Runs::::END EXECUTION::
 ::Test Runs::===========================================================================================

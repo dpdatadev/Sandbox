@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-22 17:13:09 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:09.511883 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/", text="lampfortoday">
+I, [2026-03-22T17:13:09.526908 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/?page=2", text="lampfortoday">
+I, [2026-03-22T17:13:09.542226 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/?page=49", text="lampfortoday">
+I, [2026-03-22T17:13:09.558197 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/light-from-isaiah-1-the-bad-news-and-the-good-news/", text="lampfortoday/light-from-isaiah-1-the-bad-news-and-the-good-news">
+I, [2026-03-22T17:13:09.577785 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/light-from-isaiah-2-wrath-and-mercy/", text="lampfortoday/light-from-isaiah-2-wrath-and-mercy">
+I, [2026-03-22T17:13:09.593787 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/light-from-the-old-testament-upon-the-nativity-6-when-the-days-were-fulfilled/", text="lampfortoday/light-from-the-old-testament-upon-the-nativity-6-when-the-days-were-fulfilled">
+I, [2026-03-22T17:13:09.617030 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/light-from-the-old-testament-upon-the-nativity-7-the-growth-of-gods-son/", text="lampfortoday/light-from-the-old-testament-upon-the-nativity-7-the-growth-of-gods-son">
+I, [2026-03-22T17:13:09.632013 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/lampfortoday/light-from-the-old-testament-upon-the-nativity-8-that-the-scriptures-might-be-fulfilled/", text="lampfortoday/light-from-the-old-testament-upon-the-nativity-8-that-the-scriptures-might-be-fulfilled">

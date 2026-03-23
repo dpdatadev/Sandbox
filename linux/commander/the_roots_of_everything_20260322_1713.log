@@ -1,0 +1,9 @@
+# Logfile created on 2026-03-22 17:13:11 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:11.553287 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/", text="the_roots_of_everything">
+I, [2026-03-22T17:13:11.570383 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/?page=2", text="the_roots_of_everything">
+I, [2026-03-22T17:13:11.585492 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/?page=7", text="the_roots_of_everything">
+I, [2026-03-22T17:13:11.600489 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/rise-of-pop-culture-ep3-star-wars-and-media/", text="the_roots_of_everything/rise-of-pop-culture-ep3-star-wars-and-media">
+I, [2026-03-22T17:13:11.615111 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/rise-of-pop-culture-ep4-tolkien-and-fantasy/", text="the_roots_of_everything/rise-of-pop-culture-ep4-tolkien-and-fantasy">
+I, [2026-03-22T17:13:11.630102 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/the-feminine-ep1-yin-and-yang/", text="the_roots_of_everything/the-feminine-ep1-yin-and-yang">
+I, [2026-03-22T17:13:11.644771 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/the-feminine-ep2-cosmic-dualism/", text="the_roots_of_everything/the-feminine-ep2-cosmic-dualism">
+I, [2026-03-22T17:13:11.659647 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/the_roots_of_everything/the-feminine-ep3-hierarchy-and-love/", text="the_roots_of_everything/the-feminine-ep3-hierarchy-and-love">

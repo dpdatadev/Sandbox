@@ -1,0 +1,13 @@
+# Logfile created on 2026-03-22 17:13:10 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:10.968758 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptures/", text="dailyscriptures">
+I, [2026-03-22T17:13:10.983787 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/", text="dailyscriptureskids">
+I, [2026-03-22T17:13:10.997825 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/hiddensaints/", text="hiddensaints">
+I, [2026-03-22T17:13:11.013208 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/", text="saintoftheday">
+I, [2026-03-22T17:13:11.029146 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=1102", text="saintoftheday">
+I, [2026-03-22T17:13:11.044127 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/?page=2", text="saintoftheday">
+I, [2026-03-22T17:13:11.059205 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/martyr-drosida-of-antioch-and-five-nuns-104-march-22/", text="saintoftheday/martyr-drosida-of-antioch-and-five-nuns-104-march-22">
+I, [2026-03-22T17:13:11.077578 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/martyrs-chrysanthos-and-daria-and-those-with-them-at-rome-283-march-19/", text="saintoftheday/martyrs-chrysanthos-and-daria-and-those-with-them-at-rome-283-march-19">
+I, [2026-03-22T17:13:11.093925 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/our-holy-father-james-the-confessor-bishop-of-the-studion-8th-c-march-21/", text="saintoftheday/our-holy-father-james-the-confessor-bishop-of-the-studion-8th-c-march-21">
+I, [2026-03-22T17:13:11.109581 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-ananias-aninus-the-wonderworker-march-18/", text="saintoftheday/st-ananias-aninus-the-wonderworker-march-18">
+I, [2026-03-22T17:13:11.125499 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/saintoftheday/st-cuthbert-the-wonderworker-bishop-of-lindisfarne/", text="saintoftheday/st-cuthbert-the-wonderworker-bishop-of-lindisfarne">
+I, [2026-03-22T17:13:11.141211 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/thepath/", text="thepath">

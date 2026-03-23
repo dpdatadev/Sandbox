@@ -1,0 +1,14 @@
+# Logfile created on 2026-03-22 17:13:11 -0500 by logger.rb/v1.7.0
+I, [2026-03-22T17:13:11.168349 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptures/", text="dailyscriptures">
+I, [2026-03-22T17:13:11.184783 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/dailyscriptureskids/", text="dailyscriptureskids">
+I, [2026-03-22T17:13:11.199472 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/orthodoxylive/", text="orthodoxylive">
+I, [2026-03-22T17:13:11.213862 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptures/", text="searchthescriptures">
+I, [2026-03-22T17:13:11.228099 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/", text="searchthescriptureslive">
+I, [2026-03-22T17:13:11.242764 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/?page=2", text="searchthescriptureslive">
+I, [2026-03-22T17:13:11.257420 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/?page=70", text="searchthescriptureslive">
+I, [2026-03-22T17:13:11.271945 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/all-about-the-apocrypha/", text="searchthescriptureslive/all-about-the-apocrypha">
+I, [2026-03-22T17:13:11.286369 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/how-many-canons/", text="searchthescriptureslive/how-many-canons">
+I, [2026-03-22T17:13:11.301144 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/jesus-misbehaving-christian-apocrypha/", text="searchthescriptureslive/jesus-misbehaving-christian-apocrypha">
+I, [2026-03-22T17:13:11.315992 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/rejecting-the-writings-of-john/", text="searchthescriptureslive/rejecting-the-writings-of-john">
+I, [2026-03-22T17:13:11.330548 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/searchthescriptureslive/who-created-the-new-testament/", text="searchthescriptureslive/who-created-the-new-testament">
+I, [2026-03-22T17:13:11.359459 #2551182]  INFO -- : #<struct LinkElement link="https://www.ancientfaith.com/podcasts/wholecounsel/", text="wholecounsel">
